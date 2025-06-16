@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CollegeBuddy - Academic Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2><i class="fas fa-graduation-cap"></i> CollegeBuddy</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="#dashboard" class="nav-link active" data-tab="dashboard"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="#assignments" class="nav-link" data-tab="assignments"><i class="fas fa-tasks"></i> Assignments</a>
+                <a href="#lectures" class="nav-link" data-tab="lectures"><i class="fas fa-chalkboard-teacher"></i> Lectures</a>
+                <a href="#schedule" class="nav-link" data-tab="schedule"><i class="fas fa-calendar-alt"></i> Schedule</a>
+                <a href="#grades" class="nav-link" data-tab="grades"><i class="fas fa-chart-line"></i> Grades</a>
+                <a href="#profile" class="nav-link" data-tab="profile"><i class="fas fa-user"></i> Profile</a>
+            </div>
+            <div class="nav-actions">
+                <button id="darkModeToggle" class="dark-mode-btn"><i class="fas fa-moon"></i></button>
+                <div class="nav-toggle"><i class="fas fa-bars"></i></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Quick Actions</h3>
+            </div>
+            <div class="quick-actions">
+                <button class="action-btn" data-modal="assignmentModal"><i class="fas fa-plus"></i> Add Assignment</button>
+                <button class="action-btn" data-modal="lectureModal"><i class="fas fa-plus"></i> Add Lecture</button>
+                <button class="action-btn" data-modal="subjectModal"><i class="fas fa-plus"></i> Manage Subjects</button>
+                <button class="action-btn" data-modal="semesterModal"><i class="fas fa-plus"></i> Manage Semesters</button>
+            </div>
+            <div class="upcoming-section">
+                <h3>Upcoming Deadlines</h3>
+                <div id="upcomingDeadlines"></div>
+            </div>
+            <div class="chat-assistant">
+                <div class="chat-header">
+                    <i class="fas fa-robot"></i>
+                    <h4>AI Assistant</h4>
+                    <button id="toggleChat" class="toggle-chat-btn"><i class="fas fa-minus"></i></button>
+                </div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Ask about assignments, schedule...">
+                    <button id="sendChatBtn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <p id="currentDate"></p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-tasks"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalAssignments">0</h3>
+                            <p>Total Assignments</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-info">
+                            <h3 id="completedAssignments">0</h3>
+                            <p>Completed</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-info">
+                            <h3 id="pendingAssignments">0</h3>
+                            <p>Pending</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-star"></i></div>
+                        <div class="stat-info">
+                            <h3 id="averageGrade">N/A</h3>
+                            <p>Average Grade</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-sections">
+                    <div class="section">
+                        <h2>Today's Schedule</h2>
+                        <div id="todaySchedule" class="schedule-preview"></div>
+                    </div>
+                    <div class="section">
+                        <h2>Pomodoro Timer</h2>
+                        <div class="pomodoro-timer">
+                            <h3 id="timerDisplay">25:00</h3>
+                            <p id="timerStatus">Work Session</p>
+                            <button id="startTimer" class="btn btn-primary">Start</button>
+                            <button id="resetTimer" class="btn btn-secondary">Reset</button>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h2>Daily To-Do</h2>
+                        <div class="todo-list">
+                            <form id="todoForm">
+                                <input type="text" id="todoInput" placeholder="Add a task..." required>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i></button>
+                            </form>
+                            <ul id="todoList"></ul>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h2>Recent Activity</h2>
+                        <div id="recentActivity" class="activity-feed"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Assignments Tab -->
+            <section id="assignments" class="tab-content">
+                <div class="page-header">
+                    <h1>Assignments</h1>
+                    <div class="page-actions">
+                        <button class="btn btn-primary" data-modal="assignmentModal"><i class="fas fa-plus"></i> Add Assignment</button>
+                        <select id="assignmentFilter" class="filter-select">
+                            <option value="all">All</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                        <select id="semesterFilter" class="filter-select">
+                            <option value="all">All Semesters</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="assignmentsList" class="assignments-grid"></div>
+            </section>
+
+            <!-- Lectures Tab -->
+            <section id="lectures" class="tab-content">
+                <div class="page-header">
+                    <h1>Lectures</h1>
+                    <div class="page-actions">
+                        <button class="btn btn-primary" data-modal="lectureModal"><i class="fas fa-plus"></i> Add Lecture</button>
+                        <select id="lectureSemesterFilter" class="filter-select">
+                            <option value="all">All Semesters</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="lecturesList" class="lectures-grid"></div>
+            </section>
+
+            <!-- Schedule Tab -->
+            <section id="schedule" class="tab-content">
+                <div class="page-header">
+                    <h1>Schedule</h1>
+                    <select id="scheduleSemesterFilter" class="filter-select">
+                        <option value="all">All Semesters</option>
+                    </select>
+                </div>
+                <div class="calendar-container">
+                    <div id="fullCalendar"></div>
+                </div>
+            </section>
+
+            <!-- Grades Tab -->
+            <section id="grades" class="tab-content">
+                <div class="page-header">
+                    <h1>Grades</h1>
+                    <select id="gradesSemesterFilter" class="filter-select">
+                        <option value="all">All Semesters</option>
+                    </select>
+                </div>
+                <div class="grades-container">
+                    <div class="grade-summary">
+                        <div class="gpa-card">
+                            <h3>Current GPA</h3>
+                            <div class="gpa-value" id="currentGPA">0.00</div>
+                        </div>
+                        <div class="semester-stats">
+                            <h3>Semester Stats</h3>
+                            <div id="semesterStats"></div>
+                        </div>
+                    </div>
+                    <div id="subjectGrades" class="subjects-grades"></div>
+                </div>
+            </section>
+
+            <!-- Profile Tab -->
+            <section id="profile" class="tab-content">
+                <div class="page-header">
+                    <h1>Profile</h1>
+                </div>
+                <div class="profile-container">
+                    <div class="profile-card">
+                        <div class="profile-info">
+                            <h2 id="studentName">Student</h2>
+                            <p id="studentId">Student ID: N/A</p>
+                            <p id="studentMajor">Major: N/A</p>
+                            <p id="studentYear">Year: N/A</p>
+                        </div>
+                    </div>
+                    <div class="profile-settings">
+                        <form id="profileForm">
+                            <div class="form-section">
+                                <h3>Personal Information</h3>
+                                <div class="form-group">
+                                    <label for="fullName">Full Name</label>
+                                    <input type="text" id="fullName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone</label>
+                                    <input type="tel" id="phone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="studentId">Student ID</label>
+                                    <input type="text" id="studentId" required>
+                                </div>
+                            </div>
+                            <div class="form-section">
+                                <h3>Academic Information</h3>
+                                <div class="form-group">
+                                    <label for="major">Major</label>
+                                    <input type="text" id="major" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="year">Academic Year</label>
+                                    <select id="year" required>
+                                        <option value="">Select Year</option>
+                                        <option value="Freshman">Freshman</option>
+                                        <option value="Sophomore">Sophomore</option>
+                                        <option value="Junior">Junior</option>
+                                        <option value="Senior">Senior</option>
+                                        <option value="Graduate">Graduate</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="assignmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Assignment</h2>
+                <span class="close" data-close="assignmentModal">×</span>
+            </div>
+            <form id="assignmentForm">
+                <div class="form-group">
+                    <label for="assignmentTitle">Title</label>
+                    <input type="text" id="assignmentTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="assignmentSubject">Subject</label>
+                    <select id="assignmentSubject" required>
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assignmentSemester">Semester</label>
+                    <select id="assignmentSemester" required>
+                        <option value="">Select Semester</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="assignmentDueDate">Due Date</label>
+                        <input type="date" id="assignmentDueDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="assignmentDueTime">Due Time</label>
+                        <input type="time" id="assignmentDueTime" value="23:59" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="assignmentPriority">Priority</label>
+                    <select id="assignmentPriority">
+                        <option value="low">Low</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" data-close="assignmentModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="lectureModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Lecture</h2>
+                <span class="close" data-close="lectureModal">×</span>
+            </div>
+            <form id="lectureForm">
+                <div class="form-group">
+                    <label for="lectureTitle">Title</label>
+                    <input type="text" id="lectureTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="lectureSubject">Subject</label>
+                    <select id="lectureSubject" required>
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="lectureSemester">Semester</label>
+                    <select id="lectureSemester" required>
+                        <option value="">Select Semester</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lectureDate">Date</label>
+                        <input type="date" id="lectureDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lectureTime">Time</label>
+                        <input type="time" id="lectureTime" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="lectureLocation">Location</label>
+                    <input type="text" id="lectureLocation">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" data-close="lectureModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="subjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Subjects</h2>
+                <span class="close" data-close="subjectModal">×</span>
+            </div>
+            <form id="subjectForm">
+                <div class="form-group">
+                    <label for="newSubject">Add Subject</label>
+                    <input type="text" id="newSubject" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" data-close="subjectModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+            <div class="subject-list">
+                <h3>Current Subjects</h3>
+                <ul id="subjectList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="semesterModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Semesters</h2>
+                <span class="close" data-close="semesterModal">×</span>
+            </div>
+            <form id="semesterForm">
+                <div class="form-group">
+                    <label for="semesterName">Semester Name</label>
+                    <input type="text" id="semesterName" required placeholder="e.g., Fall 2025">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="semesterStart">Start Date</label>
+                        <input type="date" id="semesterStart" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="semesterEnd">End Date</label>
+                        <input type="date" id="semesterEnd" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" data-close="semesterModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+            <div class="semester-list">
+                <h3>Current Semesters</h3>
+                <ul id="semesterList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script defer src="script.js"></script>
+</body>
+</html>
