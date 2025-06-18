@@ -398,15 +398,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .join('');
     };
 
-    // Recent Activity
-    const updateRecentActivity = () => {
-        const list = document.getElementById('recentActivity');
-        if (!list) return;
-        list.innerHTML = recentActivity
-            .map(a => `<p>${a.message} - ${new Date(a.date).toLocaleString()}</p>`)
-            .join('');
-    };
-
     // Lectures List
     const updateLecturesList = () => {
         const list = document.getElementById('lecturesList');
@@ -563,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Pomodoro Timer
     let timerInterval;
-    let timeLeft = 25 * 60;
+    let timeLeft = 30 * 60;
     let isWorkSession = true;
     let cycleCount = 0;
 
@@ -572,11 +563,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const sec = timeLeft % 60;
         document.getElementById('timerDisplay').textContent = `${min}:${sec < 10 ? '0' : ''}${sec}`;
         document.getElementById('timerStatus').textContent = isWorkSession ? 'Work Session' : 'Break';
-    };
-
-    const playSound = () => {
-        const audio = new Audio('https://freesound.org/data/previews/316/316899_4939433-lq.mp3');
-        audio.play().catch(() => console.log('Sound blocked'));
     };
 
     document.getElementById('startTimer')?.addEventListener('click', () => {
@@ -590,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         timeLeft = 15 * 60;
                         notify('Long break time!');
                     } else {
-                        timeLeft = isWorkSession ? 5 * 60 : 25 * 60;
+                        timeLeft = isWorkSession ? 5 * 60: 30 * 60;
                         notify(isWorkSession ? 'Break time!' : 'Work time!');
                     }
                     isWorkSession = !isWorkSession;
@@ -612,7 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Pomodoro reset clicked');
         clearInterval(timerInterval);
         timerInterval = null;
-        timeLeft = 25 * 60;
+        timeLeft = 30 * 60;
         isWorkSession = true;
         cycleCount = 0;
         updateTimerDisplay();
