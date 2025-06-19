@@ -509,9 +509,11 @@ body.dark-mode {
 }
 
 /* Profile Container and Cards */
+/* General Layout */
 .profile-container {
     display: flex;
     gap: 1.5rem;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
 
 .profile-card, .profile-settings {
@@ -519,123 +521,161 @@ body.dark-mode {
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    flex: 1;
+    /* flex: 1; - removed from here, will apply specific flex-basis below */
 }
 
 /* Dark Mode for Profile Container and Cards */
 .dark-mode .profile-card, .dark-mode .profile-settings {
     background: #2a2a3a;
+    color: #e0e0e0; /* Ensure text is visible in dark mode */
 }
 
-/* Profile Card Specific Styles (for alignment and spacing) */
+/* Profile Card Specific Styles */
 .profile-card {
     display: flex;
-    align-items: center;
-    gap: 20px; /* Space between picture and info */
-    /* Removed padding, border, background-color, margin-bottom as they are handled by .profile-card above */
+    flex-direction: column; /* Stack items vertically within the card */
+    align-items: center; /* Center content horizontally */
+    flex-basis: 300px; /* Give it a fixed width */
+    flex-grow: 0; /* Prevent it from growing */
+    flex-shrink: 0; /* Prevent it from shrinking too much */
+    text-align: center; /* Center text within the card */
+    padding-top: 2rem; /* More padding at the top for the image */
 }
 
-/* Profile Picture Container */
-.profile-pic-container {
-    text-align: center;
+/* Profile Picture Area */
+.profile-pic-area {
+    margin-bottom: 1.5rem; /* Space below the image and button */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%; /* Take full width of its parent */
 }
 
 /* Profile Picture Image */
 #profilePicture {
     width: 150px;
     height: 150px;
-    border-radius: 50%; /* Makes the image round */
-    object-fit: cover; /* Ensures the image covers the area without distortion */
-    border: 2px solid #007bff; /* A nice border around the image */
-    margin-bottom: 10px;
+    border-radius: 50%; /* Round image */
+    object-fit: cover; /* Cover the area without distortion */
+    border: 3px solid #007bff; /* More prominent border */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
+    margin-bottom: 15px; /* Space between image and upload button */
 }
 
-/* Profile Picture Upload Button */
+/* Upload Button */
 .upload-button {
     display: inline-block;
-    padding: 8px 15px;
+    padding: 10px 20px;
     background-color: #007bff;
     color: white;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s ease;
+    font-size: 1em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .upload-button:hover {
     background-color: #0056b3;
+    transform: translateY(-2px); /* Slight lift effect */
 }
 
-/* Form Group Inputs and Selects */
+/* Profile Information Display */
+.profile-info-display {
+    width: 100%; /* Take full width */
+    text-align: left; /* Align text within this block to the left */
+    padding-top: 1rem; /* Space from the picture area */
+    border-top: 1px solid #eee; /* A subtle separator */
+}
+
+.dark-mode .profile-info-display {
+    border-top-color: #3a3a4a;
+}
+
+.profile-info-display h2 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.dark-mode .profile-info-display h2 {
+    color: #e0e0e0;
+}
+
+.profile-info-display p {
+    margin: 0.25rem 0;
+    color: #555;
+    font-size: 0.95em;
+}
+
+.dark-mode .profile-info-display p {
+    color: #ccc;
+}
+
+/* Profile Settings Form (flex: 1 to take remaining space) */
+.profile-settings {
+    flex: 1; /* This will take up the remaining space */
+    min-width: 300px; /* Ensure it doesn't get too small */
+}
+
+/* Form Group Styles */
+.form-section h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.dark-mode .form-section h3 {
+    color: #e0e0e0;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.dark-mode .form-group label {
+    color: #e0e0e0;
+}
+
 .form-group input, .form-group select {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.75rem; /* Increased padding for better touch targets */
     border: 1px solid #ddd;
     border-radius: 4px;
-    box-sizing: border-box; /* Important: Ensures padding doesn't increase total width */
+    box-sizing: border-box;
+    font-size: 1em;
 }
 
-/* Dark Mode for Form Group Inputs and Selects */
 .dark-mode .form-group input, .dark-mode .form-group select {
     background: #3a3a4a;
     border-color: #4a4a5a;
     color: #e0e0e0;
 }
 
-/* General Form Group Spacing (added for consistency if not already present) */
-.form-group {
-    margin-bottom: 1rem; /* Adjust as needed */
-}
-
-/* Labels */
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem; /* Adjust as needed */
-    font-weight: bold;
-}
-
 /* Save Button */
 .btn-primary {
     background-color: #007bff;
     color: white;
-    padding: 10px 20px;
+    padding: 12px 25px; /* Larger button */
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.2s ease;
+    font-size: 1.1em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-top: 1.5rem; /* Space above button */
+    width: auto; /* Allow button to size itself */
 }
 
 .btn-primary:hover {
     background-color: #0056b3;
+    transform: translateY(-2px); /* Slight lift effect */
 }
-.subject-list, .semester-list {
-    margin-top: 1rem;
-}
-
-#subjectList li, #semesterList li {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem;
-    border-bottom: 1px solid #eee;
-}
-
-.dark-mode #subjectList li, .dark-mode #semesterList li {
-    border-color: #4a4a5a;
-}
-
-#subjectList li button, #semesterList li button {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-}
-
-#subjectList li button:hover, #semesterList li button:hover {
-    background: #c82333;
-}
-
 /* Modals */
 .modal {
     display: none;
