@@ -508,7 +508,7 @@ body.dark-mode {
     color: #4a90e2;
 }
 
-/* Profile */
+/* Profile Container and Cards */
 .profile-container {
     display: flex;
     gap: 1.5rem;
@@ -522,24 +522,93 @@ body.dark-mode {
     flex: 1;
 }
 
+/* Dark Mode for Profile Container and Cards */
 .dark-mode .profile-card, .dark-mode .profile-settings {
     background: #2a2a3a;
 }
 
+/* Profile Card Specific Styles (for alignment and spacing) */
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Space between picture and info */
+    /* Removed padding, border, background-color, margin-bottom as they are handled by .profile-card above */
+}
+
+/* Profile Picture Container */
+.profile-pic-container {
+    text-align: center;
+}
+
+/* Profile Picture Image */
+#profilePicture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Makes the image round */
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+    border: 2px solid #007bff; /* A nice border around the image */
+    margin-bottom: 10px;
+}
+
+/* Profile Picture Upload Button */
+.upload-button {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+
+.upload-button:hover {
+    background-color: #0056b3;
+}
+
+/* Form Group Inputs and Selects */
 .form-group input, .form-group select {
     width: 100%;
     padding: 0.5rem;
     border: 1px solid #ddd;
     border-radius: 4px;
+    box-sizing: border-box; /* Important: Ensures padding doesn't increase total width */
 }
 
+/* Dark Mode for Form Group Inputs and Selects */
 .dark-mode .form-group input, .dark-mode .form-group select {
     background: #3a3a4a;
     border-color: #4a4a5a;
     color: #e0e0e0;
 }
 
-/* Subject & Semester Modals */
+/* General Form Group Spacing (added for consistency if not already present) */
+.form-group {
+    margin-bottom: 1rem; /* Adjust as needed */
+}
+
+/* Labels */
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem; /* Adjust as needed */
+    font-weight: bold;
+}
+
+/* Save Button */
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
 .subject-list, .semester-list {
     margin-top: 1rem;
 }
