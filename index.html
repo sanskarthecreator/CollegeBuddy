@@ -196,62 +196,67 @@
             </section>
 
             <!-- Profile Tab -->
-            <section id="profile" class="tab-content">
-                <div class="page-header">
-                    <h1>Profile</h1>
-                </div>
-                <div class="profile-container">
-                    <div class="profile-card">
-                        <div class="profile-info">
-                            <h2 id="studentName">Student</h2>
-                            <p id="studentId">Student ID: N/A</p>
-                            <p id="studentMajor">Major: N/A</p>
-                            <p id="studentYear">Year: N/A</p>
-                        </div>
+       <section id="profile" class="tab-content">
+    <div class="page-header">
+        <h1>Profile</h1>
+    </div>
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-pic-container">
+                <img id="profilePicture" src="https://via.placeholder.com/150" alt="Profile Picture">
+                <input type="file" id="profilePicUpload" accept="image/*" style="display: none;">
+                <label for="profilePicUpload" class="upload-button">Upload Photo</label>
+            </div>
+            <div class="profile-info">
+                <h2 id="studentName">Student</h2>
+                <p id="studentIdDisplay">Student ID: N/A</p>
+                <p id="studentMajor">Major: N/A</p>
+                <p id="studentYear">Year: N/A</p>
+            </div>
+        </div>
+        <div class="profile-settings">
+            <form id="profileForm">
+                <div class="form-section">
+                    <h3>Personal Information</h3>
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" required>
                     </div>
-                    <div class="profile-settings">
-                        <form id="profileForm">
-                            <div class="form-section">
-                                <h3>Personal Information</h3>
-                                <div class="form-group">
-                                    <label for="fullName">Full Name</label>
-                                    <input type="text" id="fullName" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" id="email" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="phone">Phone</label>
-                                    <input type="tel" id="phone">
-                                </div>
-                                <div class="form-group">
-                                    <label for="studentId">Student ID</label>
-                                    <input type="text" id="studentId" required>
-                                </div>
-                            </div>
-                            <div class="form-section">
-                                <h3>Academic Information</h3>
-                                <div class="form-group">
-                                    <label for="major">Major</label>
-                                    <input type="text" id="major" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="year">Academic Year</label>
-                                    <select id="year" required>
-                                        <option value="">Select Year</option>
-                                        <option value="first year">first year</option>
-                                        <option value="second year">second year</option>
-                                        <option value="third year">third year</option>
-                                        <option value="fourth year">fourth year</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </form>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="studentIdInput">Student ID</label>
+                        <input type="text" id="studentIdInput" required>
                     </div>
                 </div>
-            </section>
+                <div class="form-section">
+                    <h3>Academic Information</h3>
+                    <div class="form-group">
+                        <label for="major">Major</label>
+                        <input type="text" id="major" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Academic Year</label>
+                        <select id="year" required>
+                            <option value="">Select Year</option>
+                            <option value="first year">first year</option>
+                            <option value="second year">second year</option>
+                            <option value="third year">third year</option>
+                            <option value="fourth year">fourth year</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+</section>
         </main>
     </div>
 
