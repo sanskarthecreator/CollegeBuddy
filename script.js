@@ -541,13 +541,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get elements for form and displaying profile info
     const profileForm = document.getElementById('profileForm');
     const studentNameElement = document.getElementById('studentName');
-    const studentIdDisplayElement = document.getElementById('studentIdDisplay'); // Changed ID for display
+    const studentIdDisplayElement = document.getElementById('studentIdDisplay');
     const studentMajorElement = document.getElementById('studentMajor');
     const studentYearElement = document.getElementById('studentYear');
 
     // Get input elements for form submission
     const fullNameInput = document.getElementById('fullName');
-    const studentIdInput = document.getElementById('studentIdInput'); // Changed ID for input
+    const studentIdInput = document.getElementById('studentIdInput');
     const emailInput = document.getElementById('email');
     const phoneInput = document.getElementById('phone');
     const majorInput = document.getElementById('major');
@@ -576,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Collect form data into a profile object
             const profile = {
                 name: fullNameInput?.value.trim(),
-                id: studentIdInput?.value.trim(), // Use the correct ID for the input
+                id: studentIdInput?.value.trim(),
                 email: emailInput?.value.trim(),
                 phone: phoneInput?.value.trim(),
                 major: majorInput?.value.trim(),
@@ -585,37 +585,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Update the displayed profile information
             studentNameElement.textContent = profile.name || 'Student';
-            studentIdDisplayElement.textContent = `Student ID: ${profile.id || 'N/A'}`; // Use the correct ID for display
+            studentIdDisplayElement.textContent = `Student ID: ${profile.id || 'N/A'}`;
             studentMajorElement.textContent = `Major: ${profile.major || 'N/A'}`;
             studentYearElement.textContent = `Year: ${profile.year || 'N/A'}`;
 
-            // Call your existing functions
-            // Assuming saveData(), logActivity(), and notify() are defined elsewhere in your script
-            saveData();
-            logActivity('Updated profile');
-            notify('Profile updated!');
+            // Call your existing functions (assuming these are defined elsewhere)
+            // saveData();
+            // logActivity('Updated profile');
+            // notify('Profile updated!');
+
+            // For demonstration, if you don't have these functions globally
+            console.log('Profile Updated:', profile);
+            alert('Profile updated!');
         });
     }
 
     // Dummy functions for demonstration if you haven't defined them globally
     function saveData() {
         console.log('Data saved (placeholder function)');
-        // Implement your actual data saving logic here (e.g., to localStorage)
     }
 
     function logActivity(activity) {
         console.log(`Activity Log: ${activity} (placeholder function)`);
-        // Implement your actual activity logging logic here
     }
 
     function notify(message) {
         console.log(`Notification: ${message} (placeholder function)`);
-        // Implement your actual notification display logic here (e.g., a toast message)
     }
-
-    // Optional: You might want to load existing profile data when the page loads
-    // For example, if you save it to localStorage using the saveData() function.
-    // This would involve a loadData() function.
 });
     // Pomodoro Timer
     let timerInterval;
