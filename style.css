@@ -6,31 +6,66 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #4CAF50; /* Light background for light mode */
-    color: #333; /* Dark text for light mode */
+    font-family: 'Inter', sans-serif; /* Changed font to Inter */
+    /* Background setup for iOS-like blur with a hint of blue */
+    background-image: linear-gradient(to bottom right, rgba(173, 216, 230, 0.2), rgba(255, 255, 255, 0.1)), url('https://picsum.photos/1920/1080?random=1'); /* Example blurred background image with subtle blue tint */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Ensures background stays fixed during scroll */
+    background-color: #f4f6f9; /* Fallback for no image/filter */
+    color: #333;
     line-height: 1.6;
-    transition: background 0.3s, color 0.3s;
+    transition: background 0.3s, color 0.3s; /* Keep existing transitions for dark mode */
+}
+
+/* Pseudo-element for applying blur to the background image without blurring content */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: inherit; /* Inherit the background image from body */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: blur(8px); /* Apply the blur effect */
+    z-index: -1; /* Place it behind content */
+    transition: filter 0.3s ease; /* Smooth transition for blur if needed */
 }
 
 body.dark-mode {
-    background: #1a2a2a; /* Darker green-ish background for dark mode */
-    color: #e0e0e0; /* Light text for dark mode */
+    /* Dark mode background for blurred effect */
+    background-image: linear-gradient(to bottom right, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)), url('https://picsum.photos/1920/1080?random=2'); /* Darker blurred background for dark mode */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-color: #1a2a2a; /* Darker fallback */
+    color: #e0e0e0;
+}
+
+/* Dark mode pseudo-element for blurring */
+body.dark-mode::before {
+    background-image: inherit; /* Inherit the dark mode background image */
+    filter: blur(8px); /* Apply blur */
 }
 
 /* Navbar */
 .navbar {
-    background: #28a745; /* Green */
+    background: rgba(40, 167, 69, 0.9); /* Semi-transparent green */
     color: white;
     padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow for floating effect */
     position: sticky;
     top: 0;
     z-index: 1000;
+    backdrop-filter: blur(10px); /* This is the iOS-like frosted glass effect! */
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
 }
 
 .dark-mode .navbar {
-    background: #1e3a24; /* Darker green for dark mode navbar */
+    background: rgba(30, 58, 36, 0.9); /* Semi-transparent darker green for dark mode navbar */
 }
 
 .nav-container {
@@ -67,11 +102,11 @@ body.dark-mode {
 }
 
 .nav-link.active {
-    background: #218838; /* Darker green for active link */
+    background: rgba(33, 136, 56, 0.8); /* Darker green for active link, semi-transparent */
 }
 
 .dark-mode .nav-link.active {
-    background: #2a4a32; /* Darker green for active link in dark mode */
+    background: rgba(42, 74, 50, 0.8); /* Darker green for active link in dark mode, semi-transparent */
 }
 
 .nav-actions {
@@ -107,20 +142,51 @@ body.dark-mode {
     padding: 1rem;
 }
 
-/* Sidebar */
+/* Sidebar and other card-like elements */
+.sidebar,
+.chat-assistant,
+.page-header,
+.stat-card,
+.section,
+.assignment-card,
+.calendar-container,
+.gpa-card,
+.semester-stats,
+.profile-card,
+.profile-settings,
+.modal-content {
+    background: rgba(255, 255, 255, 0.8); /* Slightly transparent white */
+    padding: 1.5rem; /* Apply general padding */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* More pronounced shadow for depth */
+    backdrop-filter: blur(8px); /* Frosted glass effect */
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.dark-mode .sidebar,
+.dark-mode .chat-assistant,
+.dark-mode .page-header,
+.dark-mode .stat-card,
+.dark-mode .section,
+.dark-mode .assignment-card,
+.dark-mode .calendar-container,
+.dark-mode .gpa-card,
+.dark-mode .semester-stats,
+.dark-mode .profile-card,
+.dark-mode .profile-settings,
+.dark-mode .modal-content {
+    background: rgba(30, 58, 36, 0.8); /* Slightly transparent dark green */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Specific Sidebar adjustments */
 .sidebar {
     width: 300px;
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* padding is already defined in the common block above */
+    /* box-shadow and background are already defined in the common block above */
 }
 
-.dark-mode .sidebar {
-    background: #1e3a24; /* Darker green for dark mode sidebar */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
+/* Quick Actions */
 .quick-actions {
     display: flex;
     flex-direction: column;
@@ -128,7 +194,7 @@ body.dark-mode {
 }
 
 .action-btn {
-    background: #28a745; /* Green */
+    background: rgba(40, 167, 69, 0.9); /* Semi-transparent green */
     color: white;
     padding: 0.75rem;
     border: none;
@@ -141,15 +207,15 @@ body.dark-mode {
 }
 
 .dark-mode .action-btn {
-    background: #2a4a32; /* Darker green for dark mode action button */
+    background: rgba(42, 74, 50, 0.9); /* Darker green for dark mode action button */
 }
 
 .action-btn:hover {
-    background: #218838; /* Darker green on hover */
+    background: rgba(33, 136, 56, 1); /* Opaque darker green on hover */
 }
 
 .dark-mode .action-btn:hover {
-    background: #3a5a42; /* Even darker green on hover in dark mode */
+    background: rgba(58, 90, 66, 1); /* Even darker green on hover in dark mode */
 }
 
 .upcoming-section {
@@ -163,14 +229,7 @@ body.dark-mode {
 /* Chat Assistant */
 .chat-assistant {
     margin-top: 2rem;
-    background: white;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.dark-mode .chat-assistant {
-    background: #1e3a24; /* Darker green for dark mode chat assistant */
+    /* background, border-radius, box-shadow already defined in common block */
 }
 
 .chat-messages {
@@ -178,12 +237,12 @@ body.dark-mode {
     overflow-y: auto;
     margin-bottom: 0.75rem;
     padding: 0.75rem;
-    background: #f0fff0; /* Very light green background for chat messages */
+    background: rgba(240, 255, 240, 0.7); /* Very light green background for chat messages, semi-transparent */
     border-radius: 6px;
 }
 
 .dark-mode .chat-messages {
-    background: #2a4a32; /* Darker green for dark mode chat messages */
+    background: rgba(42, 74, 50, 0.7); /* Darker green for dark mode chat messages, semi-transparent */
 }
 
 .chat-message {
@@ -194,23 +253,23 @@ body.dark-mode {
 }
 
 .chat-message.user {
-    background: #28a745; /* Green for user messages */
+    background: rgba(40, 167, 69, 0.9); /* Green for user messages, semi-transparent */
     color: white;
     margin-left: auto;
 }
 
 .dark-mode .chat-message.user {
-    background: #3a5a42; /* Darker green for user messages in dark mode */
+    background: rgba(58, 90, 66, 0.9); /* Darker green for user messages in dark mode, semi-transparent */
 }
 
 .chat-message.bot {
-    background: #e6ffe6; /* Lighter green for bot messages */
+    background: rgba(230, 255, 230, 0.9); /* Lighter green for bot messages, semi-transparent */
     color: #333;
     margin-right: auto;
 }
 
 .dark-mode .chat-message.bot {
-    background: #3a5a42; /* Darker green for bot messages in dark mode */
+    background: rgba(58, 90, 66, 0.9); /* Darker green for bot messages in dark mode, semi-transparent */
     color: #e0e0e0;
 }
 
@@ -222,18 +281,19 @@ body.dark-mode {
 #chatInput {
     flex: 1;
     padding: 0.5rem;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(221, 221, 221, 0.7); /* Transparent border */
     border-radius: 4px;
+    background: rgba(255, 255, 255, 0.7); /* Slightly transparent for inputs */
 }
 
 .dark-mode #chatInput {
-    background: #2a4a32; /* Darker green for dark mode input */
-    border-color: #3a5a42;
+    background: rgba(42, 74, 50, 0.7); /* Darker green for dark mode input, semi-transparent */
+    border-color: rgba(58, 90, 66, 0.7);
     color: #e0e0e0;
 }
 
 #sendChatBtn {
-    background: #28a745; /* Green */
+    background: rgba(40, 167, 69, 0.9); /* Green */
     color: white;
     border: none;
     padding: 0.5rem;
@@ -242,15 +302,15 @@ body.dark-mode {
 }
 
 .dark-mode #sendChatBtn {
-    background: #3a5a42; /* Darker green for dark mode send button */
+    background: rgba(58, 90, 66, 0.9); /* Darker green for dark mode send button */
 }
 
 #sendChatBtn:hover {
-    background: #218838; /* Darker green on hover */
+    background: rgba(33, 136, 56, 1); /* Darker green on hover */
 }
 
 .dark-mode #sendChatBtn:hover {
-    background: #4a6a52; /* Even darker green on hover in dark mode */
+    background: rgba(74, 106, 82, 1); /* Even darker green on hover in dark mode */
 }
 
 /* Main Content */
@@ -271,17 +331,11 @@ body.dark-mode {
 }
 
 .page-header {
+    /* background, padding, border-radius, box-shadow already defined in common block */
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-}
-
-.dark-mode .page-header {
-    background: #1e3a24; /* Darker green for dark mode page header */
 }
 
 .page-actions {
@@ -298,37 +352,37 @@ body.dark-mode {
 }
 
 .btn-primary {
-    background: #28a745; /* Green */
+    background: rgba(40, 167, 69, 0.9); /* Green */
     color: white;
 }
 
 .dark-mode .btn-primary {
-    background: #3a5a42; /* Darker green for dark mode primary button */
+    background: rgba(58, 90, 66, 0.9); /* Darker green for dark mode primary button */
 }
 
 .btn-primary:hover {
-    background: #218838; /* Darker green on hover */
+    background: rgba(33, 136, 56, 1); /* Darker green on hover */
 }
 
 .dark-mode .btn-primary:hover {
-    background: #4a6a52; /* Even darker green on hover in dark mode */
+    background: rgba(74, 106, 82, 1); /* Even darker green on hover in dark mode */
 }
 
 .btn-secondary {
-    background: #6c757d; /* Still a neutral grey for secondary, or a very muted green */
+    background: rgba(108, 117, 125, 0.9); /* Neutral grey, semi-transparent */
     color: white;
 }
 
 .dark-mode .btn-secondary {
-    background: #4a4a4a; /* Darker grey for dark mode secondary button */
+    background: rgba(74, 74, 74, 0.9); /* Darker grey for dark mode secondary button */
 }
 
 .btn-secondary:hover {
-    background: #5a6268;
+    background: rgba(90, 98, 104, 1);
 }
 
 .dark-mode .btn-secondary:hover {
-    background: #5a5a5a;
+    background: rgba(90, 90, 90, 1);
 }
 
 /* Stats Grid */
@@ -340,18 +394,11 @@ body.dark-mode {
 }
 
 .stat-card {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* background, padding, border-radius, box-shadow already defined in common block */
     display: flex;
     align-items: center;
     gap: 1rem;
     transition: transform 0.3s;
-}
-
-.dark-mode .stat-card {
-    background: #1e3a24; /* Darker green for dark mode stat card */
 }
 
 .stat-card:hover {
@@ -375,17 +422,10 @@ body.dark-mode {
 }
 
 .section {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* background, padding, border-radius, box-shadow already defined in common block */
 }
 
-.dark-mode .section {
-    background: #1e3a24; /* Darker green for dark mode section */
-}
-
-.pomodoro-timer { /* Renamed from .30 min-timer */
+.pomodoro-timer {
     text-align: center;
 }
 
@@ -407,13 +447,14 @@ body.dark-mode {
 #todoInput {
     flex: 1;
     padding: 0.5rem;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(221, 221, 221, 0.7); /* Transparent border */
     border-radius: 4px;
+    background: rgba(255, 255, 255, 0.7); /* Slightly transparent for inputs */
 }
 
 .dark-mode #todoInput {
-    background: #2a4a32; /* Darker green for dark mode todo input */
-    border-color: #3a5a42;
+    background: rgba(42, 74, 50, 0.7); /* Darker green for dark mode todo input, semi-transparent */
+    border-color: rgba(58, 90, 66, 0.7);
     color: #e0e0e0;
 }
 
@@ -422,11 +463,11 @@ body.dark-mode {
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(238, 238, 238, 0.7); /* Transparent border */
 }
 
 .dark-mode #todoList li {
-    border-color: #3a5a42; /* Darker green for dark mode todo list border */
+    border-color: rgba(58, 90, 66, 0.7); /* Darker green for dark mode todo list border, semi-transparent */
 }
 
 #todoList li.completed span {
@@ -441,15 +482,8 @@ body.dark-mode {
 }
 
 .assignment-card {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* background, padding, border-radius, box-shadow already defined in common block */
     transition: transform 0.3s;
-}
-
-.dark-mode .assignment-card {
-    background: #1e3a24; /* Darker green for dark mode assignment card */
 }
 
 .assignment-card:hover {
@@ -458,14 +492,7 @@ body.dark-mode {
 
 /* FullCalendar */
 .calendar-container {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.dark-mode .calendar-container {
-    background: #1e3a24; /* Darker green for dark mode calendar container */
+    /* background, padding, border-radius, box-shadow already defined in common block */
 }
 
 .fc-event.lecture { background: #28a745; color: white; } /* Green for lectures */
@@ -489,14 +516,7 @@ body.dark-mode {
 }
 
 .gpa-card, .semester-stats {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.dark-mode .gpa-card, .dark-mode .semester-stats {
-    background: #1e3a24; /* Darker green for dark mode grade cards */
+    /* background, padding, border-radius, box-shadow already defined in common block */
 }
 
 .gpa-value {
@@ -517,15 +537,11 @@ body.dark-mode {
 }
 
 .profile-card, .profile-settings {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* background, padding, border-radius, box-shadow already defined in common block */
 }
 
 /* Dark Mode for Profile Container and Cards */
 .dark-mode .profile-card, .dark-mode .profile-settings {
-    background: #1e3a24; /* Darker green for dark mode profile cards */
     color: #e0e0e0; /* Ensure text is visible in dark mode */
 }
 
@@ -565,7 +581,7 @@ body.dark-mode {
 .upload-button {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #28a745; /* Green */
+    background-color: rgba(40, 167, 69, 0.9); /* Green */
     color: white;
     border-radius: 5px;
     cursor: pointer;
@@ -574,7 +590,7 @@ body.dark-mode {
 }
 
 .upload-button:hover {
-    background-color: #218838; /* Darker green on hover */
+    background-color: rgba(33, 136, 56, 1); /* Darker green on hover */
     transform: translateY(-2px);
 }
 
@@ -583,11 +599,11 @@ body.dark-mode {
     width: 100%;
     text-align: left;
     padding-top: 1rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid rgba(238, 238, 238, 0.7); /* Transparent separator */
 }
 
 .dark-mode .profile-info-display {
-    border-top-color: #3a5a42; /* Darker green for dark mode border */
+    border-top-color: rgba(58, 90, 66, 0.7); /* Darker green for dark mode border */
 }
 
 .profile-info-display h2 {
@@ -610,10 +626,11 @@ body.dark-mode {
     color: #ccc;
 }
 
-/* Profile Settings Form (flex: 1 to take remaining space) */
+/* Profile Settings Form */
 .profile-settings {
     flex: 1;
     min-width: 300px;
+    /* background, padding, border-radius, box-shadow already defined in common block */
 }
 
 /* Form Group Styles */
@@ -645,21 +662,22 @@ body.dark-mode {
 .form-group input, .form-group select {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(221, 221, 221, 0.7); /* Transparent border */
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 1em;
+    background: rgba(255, 255, 255, 0.7); /* Slightly transparent for inputs */
 }
 
 .dark-mode .form-group input, .dark-mode .form-group select {
-    background: #2a4a32; /* Darker green for dark mode input */
-    border-color: #3a5a42;
+    background: rgba(42, 74, 50, 0.7); /* Darker green for dark mode input, semi-transparent */
+    border-color: rgba(58, 90, 66, 0.7);
     color: #e0e0e0;
 }
 
 /* Save Button */
 .btn-primary {
-    background-color: #28a745; /* Green */
+    background-color: rgba(40, 167, 69, 0.9); /* Green */
     color: white;
     padding: 12px 25px;
     border: none;
@@ -672,7 +690,7 @@ body.dark-mode {
 }
 
 .btn-primary:hover {
-    background-color: #218838; /* Darker green on hover */
+    background-color: rgba(33, 136, 56, 1); /* Darker green on hover */
     transform: translateY(-2px);
 }
 
@@ -696,17 +714,11 @@ body.dark-mode {
 }
 
 .modal-content {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
+    /* background, padding, border-radius, box-shadow already defined in common block */
     width: 90%;
     max-width: 400px;
     transition: transform 0.3s;
     pointer-events: auto;
-}
-
-.dark-mode .modal-content {
-    background: #1e3a24; /* Darker green for dark mode modal content */
 }
 
 .modal.show .modal-content {
@@ -787,12 +799,14 @@ body.dark-mode {
         top: 60px;
         left: 0;
         right: 0;
-        background: #28a745; /* Green for responsive nav menu */
+        background: rgba(40, 167, 69, 0.95); /* Semi-transparent green for responsive nav menu */
         padding: 1rem;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
     }
 
     .dark-mode .nav-menu {
-        background: #1e3a24; /* Darker green for dark mode responsive nav menu */
+        background: rgba(30, 58, 36, 0.95); /* Semi-transparent darker green for dark mode responsive nav menu */
     }
 
     .nav-menu.active {
