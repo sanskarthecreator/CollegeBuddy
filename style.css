@@ -6,16 +6,16 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif; /* Changed font to Inter */
+    font-family: 'Inter', sans-serif; /* Changed font to Inter for a modern look */
     /* Background setup for iOS-like blur with a hint of blue */
-    background-image: linear-gradient(to bottom right, rgba(173, 216, 230, 0.2), rgba(255, 255, 255, 0.1)), url('https://picsum.photos/1920/1080?random=1'); /* Example blurred background image with subtle blue tint */
+    background-image: linear-gradient(to bottom right, rgba(173, 216, 230, 0.15), rgba(255, 255, 255, 0.1)), url('https://picsum.photos/1920/1080?random=3'); /* REPLACE with your light background image, e.g., images/light-bg.jpg */
     background-size: cover;
     background-position: center;
     background-attachment: fixed; /* Ensures background stays fixed during scroll */
-    background-color: #f4f6f9; /* Fallback for no image/filter */
+    background-color: #e0f2f7; /* Lighter blue fallback */
     color: #333;
     line-height: 1.6;
-    transition: background 0.3s, color 0.3s; /* Keep existing transitions for dark mode */
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* Pseudo-element for applying blur to the background image without blurring content */
@@ -30,42 +30,44 @@ body::before {
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    filter: blur(8px); /* Apply the blur effect */
+    filter: blur(10px); /* Increased blur for a more prominent effect */
     z-index: -1; /* Place it behind content */
-    transition: filter 0.3s ease; /* Smooth transition for blur if needed */
+    transition: filter 0.3s ease;
 }
 
 body.dark-mode {
     /* Dark mode background for blurred effect */
-    background-image: linear-gradient(to bottom right, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)), url('https://picsum.photos/1920/1080?random=2'); /* Darker blurred background for dark mode */
+    background-image: linear-gradient(to bottom right, rgba(0, 0, 0, 0.3), rgba(30, 30, 30, 0.1)), url('https://picsum.photos/1920/1080?random=4'); /* REPLACE with your dark background image, e.g., images/dark-bg.jpg */
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    background-color: #1a2a2a; /* Darker fallback */
+    background-color: #121212; /* Darker fallback */
     color: #e0e0e0;
 }
 
 /* Dark mode pseudo-element for blurring */
 body.dark-mode::before {
     background-image: inherit; /* Inherit the dark mode background image */
-    filter: blur(8px); /* Apply blur */
+    filter: blur(10px); /* Increased blur for dark mode background */
 }
 
 /* Navbar */
 .navbar {
-    background: rgba(40, 167, 69, 0.9); /* Semi-transparent green */
+    background: rgba(40, 167, 69, 0.8); /* Slightly more transparent green */
     color: white;
     padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow for floating effect */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
-    backdrop-filter: blur(10px); /* This is the iOS-like frosted glass effect! */
-    -webkit-backdrop-filter: blur(10px); /* For Safari support */
+    backdrop-filter: blur(12px); /* Increased blur for prominent frosted glass */
+    -webkit-backdrop-filter: blur(12px); /* Safari support */
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .dark-mode .navbar {
-    background: rgba(30, 58, 36, 0.9); /* Semi-transparent darker green for dark mode navbar */
+    background: rgba(30, 58, 36, 0.8); /* Slightly more transparent darker green for dark mode navbar */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .nav-container {
@@ -93,20 +95,20 @@ body.dark-mode::before {
     text-decoration: none;
     font-size: 1rem;
     padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: background 0.3s;
+    border-radius: 6px; /* Slightly more rounded */
+    transition: background 0.3s ease;
 }
 
 .nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15); /* Slightly stronger hover feedback */
 }
 
 .nav-link.active {
-    background: rgba(33, 136, 56, 0.8); /* Darker green for active link, semi-transparent */
+    background: rgba(33, 136, 56, 0.85); /* Darker green for active link, semi-transparent */
 }
 
 .dark-mode .nav-link.active {
-    background: rgba(42, 74, 50, 0.8); /* Darker green for active link in dark mode, semi-transparent */
+    background: rgba(42, 74, 50, 0.85); /* Darker green for active link in dark mode, semi-transparent */
 }
 
 .nav-actions {
@@ -121,28 +123,29 @@ body.dark-mode::before {
     color: white;
     font-size: 1.2rem;
     cursor: pointer;
-    transition: transform 0.3s;
+    transition: transform 0.2s ease;
 }
 
 .dark-mode-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.15);
 }
 
 .nav-toggle {
     display: none;
     font-size: 1.5rem;
     cursor: pointer;
+    color: white; /* Ensure toggle is visible on the navbar */
 }
 
 /* Main Container */
 .main-container {
     display: flex;
     max-width: 1400px;
-    margin: 0 auto;
+    margin: 1rem auto; /* Add some top/bottom margin */
     padding: 1rem;
 }
 
-/* Sidebar and other card-like elements */
+/* Sidebar and other card-like elements - Grouped for consistent glassy effect */
 .sidebar,
 .chat-assistant,
 .page-header,
@@ -155,12 +158,14 @@ body.dark-mode::before {
 .profile-card,
 .profile-settings,
 .modal-content {
-    background: rgba(255, 255, 255, 0.8); /* Slightly transparent white */
-    padding: 1.5rem; /* Apply general padding */
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* More pronounced shadow for depth */
-    backdrop-filter: blur(8px); /* Frosted glass effect */
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.7); /* More transparent white for "glass" */
+    padding: 1.5rem;
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    backdrop-filter: blur(15px); /* Increased blur for a stronger frosted glass effect */
+    -webkit-backdrop-filter: blur(15px); /* Safari support */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle light border for definition */
+    transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
 }
 
 .dark-mode .sidebar,
@@ -175,15 +180,15 @@ body.dark-mode::before {
 .dark-mode .profile-card,
 .dark-mode .profile-settings,
 .dark-mode .modal-content {
-    background: rgba(30, 58, 36, 0.8); /* Slightly transparent dark green */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    background: rgba(30, 58, 36, 0.7); /* More transparent dark green */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); /* Darker shadow for dark mode */
+    border: 1px solid rgba(30, 58, 36, 0.5); /* Subtle dark border */
 }
 
 /* Specific Sidebar adjustments */
 .sidebar {
     width: 300px;
-    /* padding is already defined in the common block above */
-    /* box-shadow and background are already defined in the common block above */
+    margin-right: 1.5rem; /* Add spacing next to sidebar */
 }
 
 /* Quick Actions */
@@ -194,28 +199,30 @@ body.dark-mode::before {
 }
 
 .action-btn {
-    background: rgba(40, 167, 69, 0.9); /* Semi-transparent green */
+    background: rgba(40, 167, 69, 0.85); /* Semi-transparent green */
     color: white;
     padding: 0.75rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px; /* More rounded */
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    transition: background 0.3s;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .dark-mode .action-btn {
-    background: rgba(42, 74, 50, 0.9); /* Darker green for dark mode action button */
+    background: rgba(42, 74, 50, 0.85); /* Darker green for dark mode action button */
 }
 
 .action-btn:hover {
     background: rgba(33, 136, 56, 1); /* Opaque darker green on hover */
+    transform: scale(1.03); /* Subtle scale effect */
 }
 
 .dark-mode .action-btn:hover {
     background: rgba(58, 90, 66, 1); /* Even darker green on hover in dark mode */
+    transform: scale(1.03);
 }
 
 .upcoming-section {
@@ -228,8 +235,7 @@ body.dark-mode::before {
 
 /* Chat Assistant */
 .chat-assistant {
-    margin-top: 2rem;
-    /* background, border-radius, box-shadow already defined in common block */
+    margin-top: 1.5rem;
 }
 
 .chat-messages {
@@ -237,39 +243,41 @@ body.dark-mode::before {
     overflow-y: auto;
     margin-bottom: 0.75rem;
     padding: 0.75rem;
-    background: rgba(240, 255, 240, 0.7); /* Very light green background for chat messages, semi-transparent */
-    border-radius: 6px;
+    background: rgba(240, 255, 240, 0.6); /* More transparent light green */
+    border-radius: 10px;
+    border: 1px solid rgba(144, 238, 144, 0.3); /* Subtle green border */
 }
 
 .dark-mode .chat-messages {
-    background: rgba(42, 74, 50, 0.7); /* Darker green for dark mode chat messages, semi-transparent */
+    background: rgba(42, 74, 50, 0.6); /* More transparent dark green */
+    border-color: rgba(42, 74, 50, 0.5);
 }
 
 .chat-message {
     margin-bottom: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
+    padding: 0.75rem 1rem; /* Increased padding */
+    border-radius: 10px;
     max-width: 80%;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .chat-message.user {
-    background: rgba(40, 167, 69, 0.9); /* Green for user messages, semi-transparent */
+    background: rgba(40, 167, 69, 0.8); /* More transparent green */
     color: white;
     margin-left: auto;
 }
 
 .dark-mode .chat-message.user {
-    background: rgba(58, 90, 66, 0.9); /* Darker green for user messages in dark mode, semi-transparent */
+    background: rgba(58, 90, 66, 0.8); /* More transparent dark green */
 }
 
 .chat-message.bot {
-    background: rgba(230, 255, 230, 0.9); /* Lighter green for bot messages, semi-transparent */
+    background: rgba(230, 255, 230, 0.7); /* More transparent light green */
     color: #333;
-    margin-right: auto;
 }
 
 .dark-mode .chat-message.bot {
-    background: rgba(58, 90, 66, 0.9); /* Darker green for bot messages in dark mode, semi-transparent */
+    background: rgba(58, 90, 66, 0.7);
     color: #e0e0e0;
 }
 
@@ -280,37 +288,49 @@ body.dark-mode::before {
 
 #chatInput {
     flex: 1;
-    padding: 0.5rem;
-    border: 1px solid rgba(221, 221, 221, 0.7); /* Transparent border */
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.7); /* Slightly transparent for inputs */
+    padding: 0.6rem;
+    border: 1px solid rgba(221, 221, 221, 0.5); /* More transparent border */
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.5); /* More transparent input */
+    transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .dark-mode #chatInput {
-    background: rgba(42, 74, 50, 0.7); /* Darker green for dark mode input, semi-transparent */
-    border-color: rgba(58, 90, 66, 0.7);
+    background: rgba(42, 74, 50, 0.5); /* More transparent dark green input */
+    border-color: rgba(58, 90, 66, 0.5);
     color: #e0e0e0;
 }
 
+#chatInput:focus {
+    border-color: rgba(0, 123, 255, 0.7); /* Focus highlight */
+    outline: none;
+}
+
+.dark-mode #chatInput:focus {
+    border-color: rgba(103, 153, 255, 0.7); /* Focus highlight in dark mode */
+}
+
 #sendChatBtn {
-    background: rgba(40, 167, 69, 0.9); /* Green */
+    background: rgba(40, 167, 69, 0.85); /* Green */
     color: white;
     border: none;
-    padding: 0.5rem;
-    border-radius: 4px;
-    transition: background 0.3s;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .dark-mode #sendChatBtn {
-    background: rgba(58, 90, 66, 0.9); /* Darker green for dark mode send button */
+    background: rgba(58, 90, 66, 0.85); /* Darker green for dark mode send button */
 }
 
 #sendChatBtn:hover {
     background: rgba(33, 136, 56, 1); /* Darker green on hover */
+    transform: scale(1.05);
 }
 
 .dark-mode #sendChatBtn:hover {
     background: rgba(74, 106, 82, 1); /* Even darker green on hover in dark mode */
+    transform: scale(1.05);
 }
 
 /* Main Content */
@@ -322,7 +342,7 @@ body.dark-mode::before {
 .tab-content {
     display: none;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s ease;
 }
 
 .tab-content.active {
@@ -331,7 +351,6 @@ body.dark-mode::before {
 }
 
 .page-header {
-    /* background, padding, border-radius, box-shadow already defined in common block */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -344,70 +363,71 @@ body.dark-mode::before {
 }
 
 .btn {
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .btn-primary {
-    background: rgba(40, 167, 69, 0.9); /* Green */
+    background: rgba(40, 167, 69, 0.85); /* Green */
     color: white;
 }
 
 .dark-mode .btn-primary {
-    background: rgba(58, 90, 66, 0.9); /* Darker green for dark mode primary button */
+    background: rgba(58, 90, 66, 0.85); /* Darker green for dark mode primary button */
 }
 
 .btn-primary:hover {
     background: rgba(33, 136, 56, 1); /* Darker green on hover */
+    transform: scale(1.03);
 }
 
 .dark-mode .btn-primary:hover {
     background: rgba(74, 106, 82, 1); /* Even darker green on hover in dark mode */
+    transform: scale(1.03);
 }
 
 .btn-secondary {
-    background: rgba(108, 117, 125, 0.9); /* Neutral grey, semi-transparent */
+    background: rgba(108, 117, 125, 0.8); /* Neutral grey, semi-transparent */
     color: white;
 }
 
 .dark-mode .btn-secondary {
-    background: rgba(74, 74, 74, 0.9); /* Darker grey for dark mode secondary button */
+    background: rgba(74, 74, 74, 0.8); /* Darker grey for dark mode secondary button */
 }
 
 .btn-secondary:hover {
     background: rgba(90, 98, 104, 1);
+    transform: scale(1.03);
 }
 
 .dark-mode .btn-secondary:hover {
     background: rgba(90, 90, 90, 1);
+    transform: scale(1.03);
 }
 
 /* Stats Grid */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Slightly wider cards */
+    gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
 .stat-card {
-    /* background, padding, border-radius, box-shadow already defined in common block */
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: transform 0.3s;
+    transition: transform 0.2s ease;
 }
 
 .stat-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-5px); /* Slightly more pronounced lift */
 }
 
 .stat-icon {
-    font-size: 2rem;
+    font-size: 2.2rem;
     color: #28a745; /* Green for stat icon */
+    transition: color 0.2s ease;
 }
 
 .dark-mode .stat-icon {
@@ -417,12 +437,12 @@ body.dark-mode::before {
 /* Dashboard Sections */
 .dashboard-sections {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly wider sections */
     gap: 1.5rem;
 }
 
 .section {
-    /* background, padding, border-radius, box-shadow already defined in common block */
+    /* Styles inherited from the common section above */
 }
 
 .pomodoro-timer {
@@ -430,8 +450,9 @@ body.dark-mode::before {
 }
 
 #timerDisplay {
-    font-size: 2rem;
+    font-size: 2.4rem;
     color: #28a745; /* Green for timer display */
+    transition: color 0.2s ease;
 }
 
 .dark-mode #timerDisplay {
@@ -446,58 +467,73 @@ body.dark-mode::before {
 
 #todoInput {
     flex: 1;
-    padding: 0.5rem;
-    border: 1px solid rgba(221, 221, 221, 0.7); /* Transparent border */
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.7); /* Slightly transparent for inputs */
+    padding: 0.6rem;
+    border: 1px solid rgba(221, 221, 221, 0.5); /* More transparent border */
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.5); /* More transparent input */
+    transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .dark-mode #todoInput {
-    background: rgba(42, 74, 50, 0.7); /* Darker green for dark mode todo input, semi-transparent */
-    border-color: rgba(58, 90, 66, 0.7);
+    background: rgba(42, 74, 50, 0.5); /* More transparent dark green input */
+    border-color: rgba(58, 90, 66, 0.5);
     color: #e0e0e0;
+}
+
+#todoInput:focus {
+    border-color: rgba(0, 123, 255, 0.7);
+    outline: none;
+}
+
+.dark-mode #todoInput:focus {
+    border-color: rgba(103, 153, 255, 0.7);
 }
 
 #todoList li {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem;
-    border-bottom: 1px solid rgba(238, 238, 238, 0.7); /* Transparent border */
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(238, 238, 238, 0.5); /* More transparent border */
+    transition: border-color 0.2s ease;
 }
 
 .dark-mode #todoList li {
-    border-color: rgba(58, 90, 66, 0.7); /* Darker green for dark mode todo list border, semi-transparent */
+    border-color: rgba(58, 90, 66, 0.5); /* More transparent dark green border */
 }
 
 #todoList li.completed span {
     text-decoration: line-through;
+    opacity: 0.7;
 }
 
 /* Assignments & Lectures */
 .assignments-grid, .lectures-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
 }
 
 .assignment-card {
-    /* background, padding, border-radius, box-shadow already defined in common block */
-    transition: transform 0.3s;
+    transition: transform 0.2s ease;
 }
 
 .assignment-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-5px);
 }
 
 /* FullCalendar */
 .calendar-container {
-    /* background, padding, border-radius, box-shadow already defined in common block */
+    /* Styles inherited from the common section above */
+}
+
+.fc-event {
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .fc-event.lecture { background: #28a745; color: white; } /* Green for lectures */
-.fc-event.assignment { background: #e85d04; color: white; } /* Orange for assignments (kept as a contrasting color) */
-.fc-event.holiday { background: #007bff; color: white; } /* Blue for holidays (kept as a contrasting color) */
+.fc-event.assignment { background: #e85d04; color: white; } /* Orange for assignments */
+.fc-event.holiday { background: #007bff; color: white; } /* Blue for holidays */
 .dark-mode .fc-event.lecture { background: #4CAF50; } /* Brighter green for dark mode lectures */
 .dark-mode .fc-event.assignment { background: #d35400; } /* Darker orange for dark mode assignments */
 .dark-mode .fc-event.holiday { background: #0056b3; } /* Darker blue for dark mode holidays */
@@ -516,12 +552,13 @@ body.dark-mode::before {
 }
 
 .gpa-card, .semester-stats {
-    /* background, padding, border-radius, box-shadow already defined in common block */
+    /* Styles inherited from the common section above */
 }
 
 .gpa-value {
-    font-size: 2rem;
+    font-size: 2.6rem;
     color: #28a745; /* Green for GPA value */
+    transition: color 0.2s ease;
 }
 
 .dark-mode .gpa-value {
@@ -537,12 +574,17 @@ body.dark-mode::before {
 }
 
 .profile-card, .profile-settings {
-    /* background, padding, border-radius, box-shadow already defined in common block */
+    transition: box-shadow 0.2s ease;
+}
+
+.profile-card:hover, .profile-settings:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12); /* Slightly more prominent shadow on hover */
 }
 
 /* Dark Mode for Profile Container and Cards */
 .dark-mode .profile-card, .dark-mode .profile-settings {
-    color: #e0e0e0; /* Ensure text is visible in dark mode */
+    color: #e0e0e0;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* Profile Card Specific Styles */
@@ -575,15 +617,21 @@ body.dark-mode::before {
     border: 3px solid #28a745; /* Green border */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     margin-bottom: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dark-mode #profilePicture {
+    border-color: #4CAF50;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* Upload Button */
 .upload-button {
     display: inline-block;
     padding: 10px 20px;
-    background-color: rgba(40, 167, 69, 0.9); /* Green */
+    background-color: rgba(40, 167, 69, 0.85); /* Green */
     color: white;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.2s ease, transform 0.1s ease;
@@ -599,17 +647,18 @@ body.dark-mode::before {
     width: 100%;
     text-align: left;
     padding-top: 1rem;
-    border-top: 1px solid rgba(238, 238, 238, 0.7); /* Transparent separator */
+    border-top: 1px solid rgba(238, 238, 238, 0.5); /* More transparent separator */
 }
 
 .dark-mode .profile-info-display {
-    border-top-color: rgba(58, 90, 66, 0.7); /* Darker green for dark mode border */
+    border-top-color: rgba(58, 90, 66, 0.5); /* Darker green for dark mode border */
 }
 
 .profile-info-display h2 {
     margin-top: 0;
     margin-bottom: 0.5rem;
     color: #333;
+    transition: color 0.2s ease;
 }
 
 .dark-mode .profile-info-display h2 {
@@ -620,6 +669,7 @@ body.dark-mode::before {
     margin: 0.25rem 0;
     color: #555;
     font-size: 0.95em;
+    transition: color 0.2s ease;
 }
 
 .dark-mode .profile-info-display p {
@@ -630,7 +680,6 @@ body.dark-mode::before {
 .profile-settings {
     flex: 1;
     min-width: 300px;
-    /* background, padding, border-radius, box-shadow already defined in common block */
 }
 
 /* Form Group Styles */
@@ -638,6 +687,7 @@ body.dark-mode::before {
     margin-top: 0;
     margin-bottom: 1.5rem;
     color: #333;
+    transition: color 0.2s ease;
 }
 
 .dark-mode .form-section h3 {
@@ -653,6 +703,7 @@ body.dark-mode::before {
     margin-bottom: 0.5rem;
     font-weight: bold;
     color: #333;
+    transition: color 0.2s ease;
 }
 
 .dark-mode .form-group label {
@@ -661,29 +712,40 @@ body.dark-mode::before {
 
 .form-group input, .form-group select {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid rgba(221, 221, 221, 0.7); /* Transparent border */
-    border-radius: 4px;
+    padding: 0.6rem;
+    border: 1px solid rgba(221, 221, 221, 0.5); /* More transparent border */
+    border-radius: 8px;
     box-sizing: border-box;
     font-size: 1em;
-    background: rgba(255, 255, 255, 0.7); /* Slightly transparent for inputs */
+    background: rgba(255, 255, 255, 0.5); /* More transparent input */
+    color: #333;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
 .dark-mode .form-group input, .dark-mode .form-group select {
-    background: rgba(42, 74, 50, 0.7); /* Darker green for dark mode input, semi-transparent */
-    border-color: rgba(58, 90, 66, 0.7);
+    background: rgba(42, 74, 50, 0.5); /* More transparent dark green input */
+    border-color: rgba(58, 90, 66, 0.5);
     color: #e0e0e0;
+}
+
+.form-group input:focus, .form-group select:focus {
+    border-color: rgba(0, 123, 255, 0.7);
+    outline: none;
+}
+
+.dark-mode .form-group input:focus, .dark-mode .form-group select:focus {
+    border-color: rgba(103, 153, 255, 0.7);
 }
 
 /* Save Button */
 .btn-primary {
-    background-color: rgba(40, 167, 69, 0.9); /* Green */
+    background-color: rgba(40, 167, 69, 0.85); /* Green */
     color: white;
-    padding: 12px 25px;
+    padding: 10px 20px; /* Slightly reduced padding */
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 1.1em;
+    font-size: 1em;
     transition: background-color 0.2s ease, transform 0.1s ease;
     margin-top: 1.5rem;
     width: auto;
@@ -691,7 +753,7 @@ body.dark-mode::before {
 
 .btn-primary:hover {
     background-color: rgba(33, 136, 56, 1); /* Darker green on hover */
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.02);
 }
 
 /* Modals */
@@ -702,44 +764,74 @@ body.dark-mode::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4); /* Slightly lighter modal backdrop */
     align-items: center;
     justify-content: center;
     z-index: 2000;
     pointer-events: none;
+    transition: background-color 0.3s ease;
 }
 
 .modal.show {
     pointer-events: auto;
+    display: flex; /* Ensure modal is displayed when 'show' class is present */
 }
 
 .modal-content {
-    /* background, padding, border-radius, box-shadow already defined in common block */
+    background: rgba(255, 255, 255, 0.8); /* More transparent white */
+    padding: 2rem; /* Increased padding */
+    border-radius: 16px; /* More rounded corners */
     width: 90%;
-    max-width: 400px;
-    transition: transform 0.3s;
+    max-width: 500px; /* Slightly wider modal */
+    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
     pointer-events: auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(15px); /* Stronger blur for modal */
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transform: scale(0.95); /* Start slightly scaled down for transition */
+}
+
+.dark-mode .modal-content {
+    background: rgba(30, 58, 36, 0.8); /* More transparent dark green */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(30, 58, 36, 0.5);
 }
 
 .modal.show .modal-content {
-    transform: scale(1);
+    transform: scale(1); /* Scale up when shown */
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .close {
     cursor: pointer;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    color: #555;
+    transition: color 0.2s ease;
+}
+
+.close:hover {
+    color: #333;
+}
+
+.dark-mode .close {
+    color: #ccc;
+}
+
+.dark-mode .close:hover {
+    color: #eee;
 }
 
 .form-row {
     display: flex;
     gap: 1rem;
+    margin-bottom: 1rem; /* Added margin between form rows in modals */
 }
 
 .form-row .form-group {
@@ -750,7 +842,7 @@ body.dark-mode::before {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
-    margin-top: 1rem;
+    margin-top: 2rem; /* Increased margin above actions */
 }
 
 /* Notifications */
@@ -763,46 +855,50 @@ body.dark-mode::before {
 }
 
 .notification {
-    background: #28a745; /* Green for notifications */
+    background: rgba(40, 167, 69, 0.9); /* Semi-transparent green for notifications */
     color: white;
-    padding: 0.75rem;
-    border-radius: 4px;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
     margin-bottom: 0.5rem;
-    animation: slideInRight 0.3s;
+    animation: slideInRight 0.3s forwards; /* Use forwards to keep the final state */
     pointer-events: auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .notification.error {
-    background: #dc3545; /* Red for error notifications (kept as contrasting color) */
+    background: rgba(220, 53, 69, 0.9); /* Red for error notifications */
 }
 
 @keyframes slideInRight {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-container {
         flex-direction: column;
+        padding: 0.5rem;
     }
 
     .sidebar {
         width: 100%;
         margin-bottom: 1rem;
+        margin-right: 0; /* Remove right margin for mobile */
     }
 
     .nav-menu {
         display: none;
         flex-direction: column;
         position: absolute;
-        top: 60px;
+        top: 60px; /* Adjust based on your navbar height */
         left: 0;
         right: 0;
         background: rgba(40, 167, 69, 0.95); /* Semi-transparent green for responsive nav menu */
         padding: 1rem;
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
     .dark-mode .nav-menu {
@@ -823,5 +919,19 @@ body.dark-mode::before {
 
     .profile-container {
         flex-direction: column;
+    }
+
+    .profile-card, .profile-settings {
+        flex-basis: auto; /* Allow full width on smaller screens */
+        width: 100%;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0; /* Remove gap for stacked inputs */
+    }
+
+    .form-row .form-group {
+        width: 100%;
     }
 }
