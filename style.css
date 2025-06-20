@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f4f6f9; /* Light background for light mode */
+    background: #4CAF50; /* Light background for light mode */
     color: #333; /* Dark text for light mode */
     line-height: 1.6;
     transition: background 0.3s, color 0.3s;
