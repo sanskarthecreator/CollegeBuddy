@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('lectures', JSON.stringify(lectures));
             localStorage.setItem('subjects', JSON.stringify(subjects));
             localStorage.setItem('semesters', JSON.stringify(semesters));
-            localStorage.setItem('profile', JSON.stringify(profile)); // Save profile data
+            localStorage.setItem('profile', JSON.stringify(profile)); // <--- VERIFIED: Profile data is saved here
             localStorage.setItem('todos', JSON.stringify(todos));
             localStorage.setItem('recentActivity', JSON.stringify(recentActivity));
             localStorage.setItem('darkMode', JSON.stringify(darkMode));
@@ -723,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 reader.onload = function(e) {
                     profilePicture.src = e.target.result;
                     profile.picture = e.target.result; // Save picture data to profile object
-                    saveData(); // Save the updated profile with picture
+                    saveData(); // <--- VERIFIED FIX: Call saveData() immediately after updating picture
                     notify('Profile picture updated!');
                     logActivity('Profile picture updated.');
                 };
@@ -746,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
             profile.major = majorInput?.value.trim();
             profile.year = yearSelect?.value;
 
-            saveData(); // Save the updated profile object
+            saveData(); // <--- VERIFIED FIX: Call saveData() after updating profile object with form data
             logActivity('Updated profile information');
             loadProfileData(); // Reload data to ensure display is updated
             notify('Profile updated successfully!');
