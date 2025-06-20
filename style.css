@@ -13,7 +13,7 @@ body {
     background-position: center;
     background-attachment: fixed; /* Ensures background stays fixed during scroll */
     background-color: #e0f2f7; /* Lighter blue fallback */
-    color:  #e0f2f7;
+    color:  #333;
     line-height: 1.6;
     transition: background 0.3s ease, color 0.3s ease;
 }
