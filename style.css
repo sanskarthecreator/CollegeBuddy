@@ -7,20 +7,20 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f4f6f9;
-    color: #333;
+    background: #f4f6f9; /* Light background for light mode */
+    color: #333; /* Dark text for light mode */
     line-height: 1.6;
     transition: background 0.3s, color 0.3s;
 }
 
 body.dark-mode {
-    background: #1e1e2e;
-    color: #e0e0e0;
+    background: #1a2a2a; /* Darker green-ish background for dark mode */
+    color: #e0e0e0; /* Light text for dark mode */
 }
 
 /* Navbar */
 .navbar {
-    background: #1a73e8;
+    background: #28a745; /* Green */
     color: white;
     padding: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -30,7 +30,7 @@ body.dark-mode {
 }
 
 .dark-mode .navbar {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode navbar */
 }
 
 .nav-container {
@@ -67,11 +67,11 @@ body.dark-mode {
 }
 
 .nav-link.active {
-    background: #1357b8;
+    background: #218838; /* Darker green for active link */
 }
 
 .dark-mode .nav-link.active {
-    background: #3a3a4a;
+    background: #2a4a32; /* Darker green for active link in dark mode */
 }
 
 .nav-actions {
@@ -117,7 +117,7 @@ body.dark-mode {
 }
 
 .dark-mode .sidebar {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode sidebar */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -128,7 +128,7 @@ body.dark-mode {
 }
 
 .action-btn {
-    background: #1a73e8;
+    background: #28a745; /* Green */
     color: white;
     padding: 0.75rem;
     border: none;
@@ -141,15 +141,15 @@ body.dark-mode {
 }
 
 .dark-mode .action-btn {
-    background: #3a3a4a;
+    background: #2a4a32; /* Darker green for dark mode action button */
 }
 
 .action-btn:hover {
-    background: #1357b8;
+    background: #218838; /* Darker green on hover */
 }
 
 .dark-mode .action-btn:hover {
-    background: #4a4a5a;
+    background: #3a5a42; /* Even darker green on hover in dark mode */
 }
 
 .upcoming-section {
@@ -170,7 +170,7 @@ body.dark-mode {
 }
 
 .dark-mode .chat-assistant {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode chat assistant */
 }
 
 .chat-messages {
@@ -178,12 +178,12 @@ body.dark-mode {
     overflow-y: auto;
     margin-bottom: 0.75rem;
     padding: 0.75rem;
-    background: #f9fafb;
+    background: #f0fff0; /* Very light green background for chat messages */
     border-radius: 6px;
 }
 
 .dark-mode .chat-messages {
-    background: #3a3a4a;
+    background: #2a4a32; /* Darker green for dark mode chat messages */
 }
 
 .chat-message {
@@ -194,23 +194,23 @@ body.dark-mode {
 }
 
 .chat-message.user {
-    background: #1a73e8;
+    background: #28a745; /* Green for user messages */
     color: white;
     margin-left: auto;
 }
 
 .dark-mode .chat-message.user {
-    background: #4a4a5a;
+    background: #3a5a42; /* Darker green for user messages in dark mode */
 }
 
 .chat-message.bot {
-    background: #e8ecef;
+    background: #e6ffe6; /* Lighter green for bot messages */
     color: #333;
     margin-right: auto;
 }
 
 .dark-mode .chat-message.bot {
-    background: #4a4a5a;
+    background: #3a5a42; /* Darker green for bot messages in dark mode */
     color: #e0e0e0;
 }
 
@@ -227,13 +227,13 @@ body.dark-mode {
 }
 
 .dark-mode #chatInput {
-    background: #3a3a4a;
-    border-color: #4a4a5a;
+    background: #2a4a32; /* Darker green for dark mode input */
+    border-color: #3a5a42;
     color: #e0e0e0;
 }
 
 #sendChatBtn {
-    background: #1a73e8;
+    background: #28a745; /* Green */
     color: white;
     border: none;
     padding: 0.5rem;
@@ -242,15 +242,15 @@ body.dark-mode {
 }
 
 .dark-mode #sendChatBtn {
-    background: #4a4a5a;
+    background: #3a5a42; /* Darker green for dark mode send button */
 }
 
 #sendChatBtn:hover {
-    background: #1357b8;
+    background: #218838; /* Darker green on hover */
 }
 
 .dark-mode #sendChatBtn:hover {
-    background: #5a5a6a;
+    background: #4a6a52; /* Even darker green on hover in dark mode */
 }
 
 /* Main Content */
@@ -281,7 +281,7 @@ body.dark-mode {
 }
 
 .dark-mode .page-header {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode page header */
 }
 
 .page-actions {
@@ -298,29 +298,29 @@ body.dark-mode {
 }
 
 .btn-primary {
-    background: #1a73e8;
+    background: #28a745; /* Green */
     color: white;
 }
 
 .dark-mode .btn-primary {
-    background: #4a4a5a;
+    background: #3a5a42; /* Darker green for dark mode primary button */
 }
 
 .btn-primary:hover {
-    background: #1357b8;
+    background: #218838; /* Darker green on hover */
 }
 
 .dark-mode .btn-primary:hover {
-    background: #5a5a6a;
+    background: #4a6a52; /* Even darker green on hover in dark mode */
 }
 
 .btn-secondary {
-    background: #6c757d;
+    background: #6c757d; /* Still a neutral grey for secondary, or a very muted green */
     color: white;
 }
 
 .dark-mode .btn-secondary {
-    background: #4a4a5a;
+    background: #4a4a4a; /* Darker grey for dark mode secondary button */
 }
 
 .btn-secondary:hover {
@@ -328,7 +328,7 @@ body.dark-mode {
 }
 
 .dark-mode .btn-secondary:hover {
-    background: #5a5a6a;
+    background: #5a5a5a;
 }
 
 /* Stats Grid */
@@ -351,7 +351,7 @@ body.dark-mode {
 }
 
 .dark-mode .stat-card {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode stat card */
 }
 
 .stat-card:hover {
@@ -360,11 +360,11 @@ body.dark-mode {
 
 .stat-icon {
     font-size: 2rem;
-    color: #1a73e8;
+    color: #28a745; /* Green for stat icon */
 }
 
 .dark-mode .stat-icon {
-    color: #4a90e2;
+    color: #4CAF50; /* Brighter green for dark mode stat icon */
 }
 
 /* Dashboard Sections */
@@ -382,20 +382,20 @@ body.dark-mode {
 }
 
 .dark-mode .section {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode section */
 }
 
-.30 min-timer {
+.pomodoro-timer { /* Renamed from .30 min-timer */
     text-align: center;
 }
 
 #timerDisplay {
     font-size: 2rem;
-    color: #1a73e8;
+    color: #28a745; /* Green for timer display */
 }
 
 .dark-mode #timerDisplay {
-    color: #4a90e2;
+    color: #4CAF50; /* Brighter green for dark mode timer display */
 }
 
 .todo-list form {
@@ -412,8 +412,8 @@ body.dark-mode {
 }
 
 .dark-mode #todoInput {
-    background: #3a3a4a;
-    border-color: #4a4a5a;
+    background: #2a4a32; /* Darker green for dark mode todo input */
+    border-color: #3a5a42;
     color: #e0e0e0;
 }
 
@@ -426,7 +426,7 @@ body.dark-mode {
 }
 
 .dark-mode #todoList li {
-    border-color: #4a4a5a;
+    border-color: #3a5a42; /* Darker green for dark mode todo list border */
 }
 
 #todoList li.completed span {
@@ -449,7 +449,7 @@ body.dark-mode {
 }
 
 .dark-mode .assignment-card {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode assignment card */
 }
 
 .assignment-card:hover {
@@ -465,15 +465,15 @@ body.dark-mode {
 }
 
 .dark-mode .calendar-container {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode calendar container */
 }
 
-.fc-event.lecture { background: #1a73e8; color: white; }
-.fc-event.assignment { background: #e85d04; color: white; }
-.fc-event.holiday { background: #28a745; color: white; }
-.dark-mode .fc-event.lecture { background: #4a90e2; }
-.dark-mode .fc-event.assignment { background: #d35400; }
-.dark-mode .fc-event.holiday { background: #2ecc71; }
+.fc-event.lecture { background: #28a745; color: white; } /* Green for lectures */
+.fc-event.assignment { background: #e85d04; color: white; } /* Orange for assignments (kept as a contrasting color) */
+.fc-event.holiday { background: #007bff; color: white; } /* Blue for holidays (kept as a contrasting color) */
+.dark-mode .fc-event.lecture { background: #4CAF50; } /* Brighter green for dark mode lectures */
+.dark-mode .fc-event.assignment { background: #d35400; } /* Darker orange for dark mode assignments */
+.dark-mode .fc-event.holiday { background: #0056b3; } /* Darker blue for dark mode holidays */
 
 /* Grades */
 .grades-container {
@@ -496,16 +496,16 @@ body.dark-mode {
 }
 
 .dark-mode .gpa-card, .dark-mode .semester-stats {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode grade cards */
 }
 
 .gpa-value {
     font-size: 2rem;
-    color: #1a73e8;
+    color: #28a745; /* Green for GPA value */
 }
 
 .dark-mode .gpa-value {
-    color: #4a90e2;
+    color: #4CAF50; /* Brighter green for dark mode GPA value */
 }
 
 /* Profile Container and Cards */
@@ -521,52 +521,51 @@ body.dark-mode {
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    /* flex: 1; - removed from here, will apply specific flex-basis below */
 }
 
 /* Dark Mode for Profile Container and Cards */
 .dark-mode .profile-card, .dark-mode .profile-settings {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode profile cards */
     color: #e0e0e0; /* Ensure text is visible in dark mode */
 }
 
 /* Profile Card Specific Styles */
 .profile-card {
     display: flex;
-    flex-direction: column; /* Stack items vertically within the card */
-    align-items: center; /* Center content horizontally */
-    flex-basis: 300px; /* Give it a fixed width */
-    flex-grow: 0; /* Prevent it from growing */
-    flex-shrink: 0; /* Prevent it from shrinking too much */
-    text-align: center; /* Center text within the card */
-    padding-top: 2rem; /* More padding at the top for the image */
+    flex-direction: column;
+    align-items: center;
+    flex-basis: 300px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    text-align: center;
+    padding-top: 2rem;
 }
 
 /* Profile Picture Area */
 .profile-pic-area {
-    margin-bottom: 1.5rem; /* Space below the image and button */
+    margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%; /* Take full width of its parent */
+    width: 100%;
 }
 
 /* Profile Picture Image */
 #profilePicture {
     width: 150px;
     height: 150px;
-    border-radius: 50%; /* Round image */
-    object-fit: cover; /* Cover the area without distortion */
-    border: 3px solid #007bff; /* More prominent border */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
-    margin-bottom: 15px; /* Space between image and upload button */
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #28a745; /* Green border */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    margin-bottom: 15px;
 }
 
 /* Upload Button */
 .upload-button {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #28a745; /* Green */
     color: white;
     border-radius: 5px;
     cursor: pointer;
@@ -575,20 +574,20 @@ body.dark-mode {
 }
 
 .upload-button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px); /* Slight lift effect */
+    background-color: #218838; /* Darker green on hover */
+    transform: translateY(-2px);
 }
 
 /* Profile Information Display */
 .profile-info-display {
-    width: 100%; /* Take full width */
-    text-align: left; /* Align text within this block to the left */
-    padding-top: 1rem; /* Space from the picture area */
-    border-top: 1px solid #eee; /* A subtle separator */
+    width: 100%;
+    text-align: left;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
 }
 
 .dark-mode .profile-info-display {
-    border-top-color: #3a3a4a;
+    border-top-color: #3a5a42; /* Darker green for dark mode border */
 }
 
 .profile-info-display h2 {
@@ -613,8 +612,8 @@ body.dark-mode {
 
 /* Profile Settings Form (flex: 1 to take remaining space) */
 .profile-settings {
-    flex: 1; /* This will take up the remaining space */
-    min-width: 300px; /* Ensure it doesn't get too small */
+    flex: 1;
+    min-width: 300px;
 }
 
 /* Form Group Styles */
@@ -645,7 +644,7 @@ body.dark-mode {
 
 .form-group input, .form-group select {
     width: 100%;
-    padding: 0.75rem; /* Increased padding for better touch targets */
+    padding: 0.75rem;
     border: 1px solid #ddd;
     border-radius: 4px;
     box-sizing: border-box;
@@ -653,29 +652,30 @@ body.dark-mode {
 }
 
 .dark-mode .form-group input, .dark-mode .form-group select {
-    background: #3a3a4a;
-    border-color: #4a4a5a;
+    background: #2a4a32; /* Darker green for dark mode input */
+    border-color: #3a5a42;
     color: #e0e0e0;
 }
 
 /* Save Button */
 .btn-primary {
-    background-color: #007bff;
+    background-color: #28a745; /* Green */
     color: white;
-    padding: 12px 25px; /* Larger button */
+    padding: 12px 25px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1.1em;
     transition: background-color 0.2s ease, transform 0.1s ease;
-    margin-top: 1.5rem; /* Space above button */
-    width: auto; /* Allow button to size itself */
+    margin-top: 1.5rem;
+    width: auto;
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px); /* Slight lift effect */
+    background-color: #218838; /* Darker green on hover */
+    transform: translateY(-2px);
 }
+
 /* Modals */
 .modal {
     display: none;
@@ -706,7 +706,7 @@ body.dark-mode {
 }
 
 .dark-mode .modal-content {
-    background: #2a2a3a;
+    background: #1e3a24; /* Darker green for dark mode modal content */
 }
 
 .modal.show .modal-content {
@@ -751,7 +751,7 @@ body.dark-mode {
 }
 
 .notification {
-    background: #28a745;
+    background: #28a745; /* Green for notifications */
     color: white;
     padding: 0.75rem;
     border-radius: 4px;
@@ -761,7 +761,7 @@ body.dark-mode {
 }
 
 .notification.error {
-    background: #dc3545;
+    background: #dc3545; /* Red for error notifications (kept as contrasting color) */
 }
 
 @keyframes slideInRight {
@@ -787,12 +787,12 @@ body.dark-mode {
         top: 60px;
         left: 0;
         right: 0;
-        background: #1a73e8;
+        background: #28a745; /* Green for responsive nav menu */
         padding: 1rem;
     }
 
     .dark-mode .nav-menu {
-        background: #2a2a3a;
+        background: #1e3a24; /* Darker green for dark mode responsive nav menu */
     }
 
     .nav-menu.active {
