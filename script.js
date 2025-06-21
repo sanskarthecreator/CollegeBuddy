@@ -1,1001 +1,1076 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM fully loaded, initializing CollegeBuddy...');
-
-    // --- Data Initialization ---
+    // --- Data Storage and Initialization ---
     let assignments = JSON.parse(localStorage.getItem('assignments')) || [];
     let lectures = JSON.parse(localStorage.getItem('lectures')) || [];
     let subjects = JSON.parse(localStorage.getItem('subjects')) || [];
     let semesters = JSON.parse(localStorage.getItem('semesters')) || [];
-    // Initialize profile with default values or from localStorage, including picture
-    let profile = JSON.parse(localStorage.getItem('profile')) || { name: '', id: '', major: '', year: '', email: '', phone: '', picture: '' };
     let todos = JSON.parse(localStorage.getItem('todos')) || [];
-    let recentActivity = JSON.parse(localStorage.getItem('recentActivity')) || [];
-    let darkMode = JSON.parse(localStorage.getItem('darkMode')) || false;
+    let profileData = JSON.parse(localStorage.getItem('profileData')) || {};
+    let profilePictureData = localStorage.getItem('profilePictureData') || 'https://via.placeholder.com/150';
 
-    const holidays = [
-        { title: 'New Year’s Day', date: '2025-01-01', allDay: true },
-        { title: 'Republic Day', date: '2025-01-26', allDay: true },
-        { title: 'Holi', date: '2025-03-14', allDay: true },
-        { title: 'Independence Day', date: '2025-08-15', allDay: true },
-        { title: 'Diwali', date: '2025-10-20', allDay: true },
-        { title: 'Christmas', date: '2025-12-25', allDay: true }
-    ];
+    let nextAssignmentId = assignments.length > 0 ? Math.max(...assignments.map(a => a.id)) + 1 : 1;
+    let nextLectureId = lectures.length > 0 ? Math.max(...lectures.map(l => l.id)) + 1 : 1;
+    let nextSemesterId = semesters.length > 0 ? Math.max(...semesters.map(s => s.id)) + 1 : 1;
 
-    // --- Utility Functions ---
-    const notify = (msg, type = 'success') => {
-        const div = document.createElement('div');
-        div.className = `notification ${type}`;
-        div.textContent = msg;
-        document.getElementById('notificationContainer')?.appendChild(div);
-        setTimeout(() => div.remove(), 3000);
-    };
+    // --- DOM Element References ---
+    const navLinks = document.querySelectorAll('.nav-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const modalTriggers = document.querySelectorAll('[data-modal]');
+    const modals = document.querySelectorAll('.modal');
+    const closeButtons = document.querySelectorAll('.modal .close, .modal .btn-secondary[data-close]');
 
+    // Dashboard elements
+    const currentDateEl = document.getElementById('currentDate');
+    const totalAssignmentsEl = document.getElementById('totalAssignments');
+    const completedAssignmentsEl = document.getElementById('completedAssignments');
+    const pendingAssignmentsEl = document.getElementById('pendingAssignments');
+    const averageGradeEl = document.getElementById('averageGrade');
+    const upcomingDeadlinesEl = document.getElementById('upcomingDeadlines');
+    const todayScheduleEl = document.getElementById('todaySchedule');
+
+    // Forms
+    const assignmentForm = document.getElementById('assignmentForm');
+    const lectureForm = document.getElementById('lectureForm');
+    const subjectForm = document.getElementById('subjectForm');
+    const semesterForm = document.getElementById('semesterForm');
+    const todoForm = document.getElementById('todoForm');
+    const profileForm = document.getElementById('profileForm');
+
+    // Lists
+    const assignmentsListEl = document.getElementById('assignmentsList');
+    const lecturesListEl = document.getElementById('lecturesList');
+    const subjectListEl = document.getElementById('subjectList');
+    const semesterListEl = document.getElementById('semesterList');
+    const todoListEl = document.getElementById('todoList');
+
+    // Filters
+    const assignmentFilter = document.getElementById('assignmentFilter');
+    const semesterFilter = document.getElementById('semesterFilter');
+    const lectureSemesterFilter = document.getElementById('lectureSemesterFilter');
+    const scheduleSemesterFilter = document.getElementById('scheduleSemesterFilter');
+    const gradesSemesterFilter = document.getElementById('gradesSemesterFilter');
+
+    // Select dropdowns in modals
+    const assignmentSubjectSelect = document.getElementById('assignmentSubject');
+    const assignmentSemesterSelect = document.getElementById('assignmentSemester');
+    const lectureSubjectSelect = document.getElementById('lectureSubject');
+    const lectureSemesterSelect = document.getElementById('lectureSemester');
+
+    // Grades tab elements
+    const currentGPAEl = document.getElementById('currentGPA');
+    const semesterStatsEl = document.getElementById('semesterStats');
+    const subjectGradesEl = document.getElementById('subjectGrades');
+
+    // Profile elements
+    const profilePictureEl = document.getElementById('profilePicture');
+    const profilePicUpload = document.getElementById('profilePicUpload');
+    const studentNameEl = document.getElementById('studentName');
+    const studentIdDisplayEl = document.getElementById('studentIdDisplay');
+    const studentMajorEl = document.getElementById('studentMajor');
+    const studentYearEl = document.getElementById('studentYear');
+    const fullNameInput = document.getElementById('fullName');
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
+    const studentIdInput = document.getElementById('studentIdInput');
+    const majorInput = document.getElementById('major');
+    const yearSelect = document.getElementById('year');
+
+    // Pomodoro Timer elements
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerStatus = document.getElementById('timerStatus');
+    const startTimerBtn = document.getElementById('startTimer');
+    const resetTimerBtn = document.getElementById('resetTimer');
+    let pomodoroTimer;
+    let timeRemaining;
+    let isPaused = true;
+    let sessionType = 'work'; // 'work' or 'break'
+    const WORK_TIME = 25 * 60; // 25 minutes
+    const BREAK_TIME = 5 * 60; // 5 minutes
+    const LONG_BREAK_TIME = 15 * 60; // 15 minutes
+    let workSessionsCompleted = 0;
+
+    // AI Chat elements
+    const chatMessagesEl = document.getElementById('chatMessages');
+    const chatInputEl = document.getElementById('chatInput');
+    const sendChatBtn = document.getElementById('sendChatBtn');
+    const toggleChatBtn = document.getElementById('toggleChat');
+    const chatAssistantSection = document.querySelector('.chat-assistant');
+
+    // FullCalendar
+    let calendar;
+
+    // --- Helper Functions ---
     const saveData = () => {
-        try {
-            localStorage.setItem('assignments', JSON.stringify(assignments));
-            localStorage.setItem('lectures', JSON.stringify(lectures));
-            localStorage.setItem('subjects', JSON.stringify(subjects));
-            localStorage.setItem('semesters', JSON.stringify(semesters));
-            localStorage.setItem('profile', JSON.stringify(profile)); // <--- VERIFIED: Profile data is saved here
-            localStorage.setItem('todos', JSON.stringify(todos));
-            localStorage.setItem('recentActivity', JSON.stringify(recentActivity));
-            localStorage.setItem('darkMode', JSON.stringify(darkMode));
-        } catch (e) {
-            console.error('Error saving data:', e);
-            notify('Error saving data! Please check browser storage settings.', 'error'); // Notify user of save error
-        }
+        localStorage.setItem('assignments', JSON.stringify(assignments));
+        localStorage.setItem('lectures', JSON.stringify(lectures));
+        localStorage.setItem('subjects', JSON.stringify(subjects));
+        localStorage.setItem('semesters', JSON.stringify(semesters));
+        localStorage.setItem('todos', JSON.stringify(todos));
+        localStorage.setItem('profileData', JSON.stringify(profileData));
+        localStorage.setItem('profilePictureData', profilePictureData);
     };
 
-    const logActivity = (msg) => {
-        recentActivity.unshift({ id: Date.now(), message: msg, date: new Date().toISOString() });
-        recentActivity = recentActivity.slice(0, 10); // Keep only the 10 most recent activities
-        saveData();
-        updateRecentActivity();
+    const showNotification = (message, type = 'info', duration = 3000) => {
+        const container = document.getElementById('notificationContainer');
+        if (!container) return;
+
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+
+        container.appendChild(notification);
+
+        // Trigger reflow to enable transition
+        notification.offsetHeight;
+
+        notification.classList.add('show');
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+            notification.addEventListener('transitionend', () => notification.remove());
+        }, duration);
     };
 
-    // Placeholder for sound function (implement if needed)
-    const playSound = () => {
-        // Example: new Audio('path/to/your/sound.mp3').play();
-        console.log('Playing sound...');
-    };
+    // --- UI Update Functions ---
 
-    // --- Navigation ---
-    try {
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                console.log('Nav link clicked:', link.getAttribute('data-tab'));
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                const tab = document.getElementById(link.getAttribute('data-tab'));
-                if (tab) tab.classList.add('active');
-
-                // Trigger updates for relevant sections when a tab is activated
-                if (link.getAttribute('data-tab') === 'dashboard') {
-                    updateDashboardStats();
-                    updateUpcomingDeadlines();
-                    updateTodaySchedule();
-                    updateRecentActivity();
-                } else if (link.getAttribute('data-tab') === 'assignments') {
-                    updateAssignmentsList();
-                } else if (link.getAttribute('data-tab') === 'lectures') {
-                    updateLecturesList();
-                } else if (link.getAttribute('data-tab') === 'grades') {
-                    updateGrades();
-                } else if (link.getAttribute('data-tab') === 'schedule') {
-                    updateCalendar(); // Re-render calendar when schedule tab is active
-                } else if (link.getAttribute('data-tab') === 'profile') {
-                    loadProfileData(); // Ensure profile data is loaded when profile tab is active
-                }
-            });
-        });
-
-        document.querySelector('.nav-toggle')?.addEventListener('click', () => {
-            console.log('Nav toggle clicked');
-            document.querySelector('.nav-menu')?.classList.toggle('active');
-        });
-    } catch (e) {
-        console.error('Error setting up navigation:', e);
-    }
-
-    // --- Dark Mode ---
-    const toggleDarkMode = () => {
-        darkMode = !darkMode;
-        document.body.classList.toggle('dark-mode');
-        document.getElementById('darkModeToggle').innerHTML = `<i class="fas fa-${darkMode ? 'sun' : 'moon'}"></i>`;
-        saveData();
-        console.log('Dark mode toggled:', darkMode);
-    };
-
-    document.getElementById('darkModeToggle')?.addEventListener('click', toggleDarkMode);
-
-    // Apply dark mode on initial load
-    if (darkMode) {
+    // Dark Mode Toggle
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const enableDarkMode = () => {
         document.body.classList.add('dark-mode');
-        document.getElementById('darkModeToggle').innerHTML = `<i class="fas fa-sun"></i>`;
+        localStorage.setItem('darkMode', 'enabled');
+        darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    };
+
+    const disableDarkMode = () => {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('darkMode', 'disabled');
+        darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+    };
+
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        enableDarkMode();
     }
 
-    // --- Modals ---
-    try {
-        document.querySelectorAll('[data-modal-target]').forEach(btn => { // Changed data-modal to data-modal-target for clarity
-            btn.addEventListener('click', () => {
-                const modalId = btn.getAttribute('data-modal-target');
-                console.log('Modal button clicked:', modalId);
-                const modal = document.getElementById(modalId);
-                if (modal) {
-                    modal.style.display = 'flex';
-                    modal.classList.add('show');
-                    // Specific updates for modals
-                    if (['assignmentModal', 'lectureModal'].includes(modalId)) {
-                        updateSubjectOptions();
-                        updateSemesterOptions();
-                    }
-                    if (modalId === 'subjectModal') updateSubjectList();
-                    if (modalId === 'semesterModal') updateSemesterList();
-                }
-            });
-        });
-
-        document.querySelectorAll('[data-close-modal], .close').forEach(btn => { // Changed data-close to data-close-modal
-            btn.addEventListener('click', () => {
-                const modalId = btn.getAttribute('data-close-modal') || btn.closest('.modal')?.id; // Get ID from data-attribute or closest modal parent
-                console.log('Close button clicked for modal:', modalId);
-                const modal = document.getElementById(modalId);
-                if (modal) {
-                    modal.classList.remove('show');
-                    setTimeout(() => modal.style.display = 'none', 300);
-                }
-            });
-        });
-
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    console.log('Modal background clicked');
-                    modal.classList.remove('show');
-                    setTimeout(() => modal.style.display = 'none', 300);
-                }
-            });
-        });
-    } catch (e) {
-        console.error('Error setting up modals:', e);
-    }
-
-    // --- Subjects Management ---
-    const updateSubjectOptions = () => {
-        ['assignmentSubject', 'lectureSubject'].forEach(id => {
-            const select = document.getElementById(id);
-            if (select) select.innerHTML = '<option value="">Select Subject</option>' + subjects.map(s => `<option value="${s}">${s}</option>`).join('');
-        });
-    };
-
-    document.getElementById('subjectForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const subjectInput = document.getElementById('newSubject');
-        const subject = subjectInput?.value.trim();
-        if (subject && !subjects.includes(subject)) {
-            subjects.push(subject);
-            saveData();
-            updateSubjectList();
-            updateSubjectOptions();
-            notify('Subject added!');
-            subjectInput.value = ''; // Clear input field
+    darkModeToggle.addEventListener('click', () => {
+        if (document.body.classList.contains('dark-mode')) {
+            disableDarkMode();
         } else {
-            notify('Invalid or duplicate subject.', 'error');
+            enableDarkMode();
         }
     });
 
-    const updateSubjectList = () => {
-        const list = document.getElementById('subjectList');
-        if (list) list.innerHTML = subjects.map(s => `<li>${s}<button class="btn-delete-item" onclick="deleteSubject('${s}')">Delete</button></li>`).join('');
-    };
+    // Mobile Navigation Toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
 
-    window.deleteSubject = (subject) => {
-        if (assignments.some(a => a.subject === subject) || lectures.some(l => l.subject === subject)) {
-            notify('Subject is currently in use by assignments or lectures and cannot be deleted.', 'error');
-            return;
-        }
-        if (confirm(`Are you sure you want to delete the subject "${subject}"?`)) {
-            subjects = subjects.filter(s => s !== subject);
-            saveData();
-            updateSubjectList();
-            updateSubjectOptions();
-            notify('Subject deleted!');
-            logActivity(`Deleted subject: ${subject}`);
-        }
-    };
-
-    // --- Semesters Management ---
-    const updateSemesterOptions = () => {
-        ['assignmentSemester', 'lectureSemester', 'semesterFilter', 'lectureSemesterFilter', 'scheduleSemesterFilter', 'gradesSemesterFilter'].forEach(id => {
-            const select = document.getElementById(id);
-            if (select) {
-                const currentSelection = select.value; // Preserve current selection if possible
-                select.innerHTML = '<option value="all">All Semesters</option>' + semesters.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-                if (select.querySelector(`option[value="${currentSelection}"]`)) {
-                    select.value = currentSelection;
-                }
-            }
-        });
-    };
-
-    document.getElementById('semesterForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const nameInput = document.getElementById('semesterName');
-        const startInput = document.getElementById('semesterStart');
-        const endInput = document.getElementById('semesterEnd');
-
-        const name = nameInput?.value.trim();
-        const start = startInput?.value;
-        const end = endInput?.value;
-
-        if (name && start && end && new Date(start) <= new Date(end)) {
-            semesters.push({ id: Date.now(), name, start, end });
-            saveData();
-            updateSemesterList();
-            updateSemesterOptions();
-            notify('Semester added!');
-            e.target.reset(); // Clear form
-        } else {
-            notify('Invalid semester details. Ensure all fields are filled and end date is not before start date.', 'error');
-        }
+    navToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        navToggle.querySelector('i').classList.toggle('fa-bars');
+        navToggle.querySelector('i').classList.toggle('fa-times');
     });
 
-    const updateSemesterList = () => {
-        const list = document.getElementById('semesterList');
-        if (list) list.innerHTML = semesters.map(s => `<li>${s.name} (${s.start} to ${s.end})<button class="btn-delete-item" onclick="deleteSemester(${s.id})">Delete</button></li>`).join('');
-    };
+    // Tab Navigation
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetTab = link.dataset.tab;
 
-    window.deleteSemester = (id) => {
-        if (assignments.some(a => a.semesterId === id) || lectures.some(l => l.semesterId === id)) {
-            notify('Semester is currently in use by assignments or lectures and cannot be deleted.', 'error');
-            return;
-        }
-        if (confirm('Are you sure you want to delete this semester?')) {
-            semesters = semesters.filter(s => s.id !== id);
-            saveData();
-            updateSemesterList();
-            updateSemesterOptions();
-            notify('Semester deleted!');
-            logActivity(`Deleted semester: ${semesters.find(s => s.id === id)?.name || id}`); // Log name if found
-        }
-    };
+            navLinks.forEach(nav => nav.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
 
-    // --- Assignments Management ---
-    document.getElementById('assignmentForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const assignment = {
-            id: Date.now(),
-            title: document.getElementById('assignmentTitle')?.value.trim(),
-            subject: document.getElementById('assignmentSubject')?.value,
-            semesterId: parseInt(document.getElementById('assignmentSemester')?.value),
-            dueDate: document.getElementById('assignmentDueDate')?.value,
-            dueTime: document.getElementById('assignmentDueTime')?.value,
-            priority: document.getElementById('assignmentPriority')?.value,
-            status: 'pending',
-            grade: null
-        };
-        if (!assignment.title || !assignment.subject || isNaN(assignment.semesterId) || !assignment.dueDate || !assignment.dueTime) {
-            notify('Please fill all required fields for the assignment.', 'error');
-            return;
-        }
-        assignments.push(assignment);
-        saveData();
-        logActivity(`Added assignment: ${assignment.title}`);
-        updateAssignmentsList();
-        updateDashboardStats();
-        updateUpcomingDeadlines();
-        updateGrades();
-        updateCalendar();
-        notify('Assignment added successfully!');
-        e.target.reset();
-        const modal = document.getElementById('assignmentModal');
-        modal.classList.remove('show');
-        setTimeout(() => modal.style.display = 'none', 300);
-    });
+            link.classList.add('active');
+            document.getElementById(targetTab).classList.add('active');
 
-    window.removeAssignment = (id) => {
-        const assignmentToRemove = assignments.find(a => a.id === id);
-        if (assignmentToRemove && confirm(`Delete assignment: "${assignmentToRemove.title}"?`)) {
-            assignments = assignments.filter(a => a.id !== id);
-            saveData();
-            logActivity(`Deleted assignment: ${assignmentToRemove.title}`);
-            updateAssignmentsList();
-            updateDashboardStats();
-            updateUpcomingDeadlines();
-            updateGrades();
-            updateCalendar();
-            notify('Assignment deleted!');
-        }
-    };
-
-    window.markAsCompleted = (id) => {
-        const a = assignments.find(a => a.id === id);
-        if (a) {
-            a.status = a.status === 'completed' ? 'pending' : 'completed';
-            saveData();
-            logActivity(`Marked ${a.title} as ${a.status}`);
-            updateAssignmentsList();
-            updateDashboardStats();
-            updateGrades();
-            updateCalendar();
-            notify(`Assignment marked as ${a.status}!`);
-        }
-    };
-
-    window.assignGrade = (id) => {
-        const a = assignments.find(a => a.id === id);
-        if (a) {
-            let grade = prompt(`Enter grade for "${a.title}" (0-100):`);
-            if (grade === null) return; // User cancelled
-            const gradeNum = parseFloat(grade);
-            if (!isNaN(gradeNum) && gradeNum >= 0 && gradeNum <= 100) {
-                a.grade = gradeNum;
-                saveData();
-                logActivity(`Graded ${a.title}: ${gradeNum}%`);
+            // Specific updates for tabs
+            if (targetTab === 'assignments') {
                 updateAssignmentsList();
-                updateGrades();
+                populateSemesterFilters();
+            } else if (targetTab === 'lectures') {
+                updateLecturesList();
+                populateLectureSemesterFilter();
+            } else if (targetTab === 'schedule') {
+                renderCalendar();
+                populateScheduleSemesterFilter();
+            } else if (targetTab === 'grades') {
+                updateGradesDisplay();
+                populateGradesSemesterFilter();
+            } else if (targetTab === 'dashboard') {
                 updateDashboardStats();
-                notify('Grade assigned!');
-            } else {
-                notify('Invalid grade. Please enter a number between 0 and 100.', 'error');
+                updateTodaySchedule();
+                updateUpcomingDeadlines();
+            } else if (targetTab === 'profile') {
+                loadProfileData();
             }
+        });
+    });
+
+    // Modal Handling
+    modalTriggers.forEach(button => {
+        button.addEventListener('click', () => {
+            const modalId = button.dataset.modal;
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                if (modalId === 'assignmentModal') {
+                    populateAssignmentModalSelects();
+                } else if (modalId === 'lectureModal') {
+                    populateLectureModalSelects();
+                } else if (modalId === 'subjectModal') {
+                    updateSubjectList();
+                } else if (modalId === 'semesterModal') {
+                    updateSemesterList();
+                }
+            }
+        });
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modalId = button.dataset.close;
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+
+    window.addEventListener('click', (e) => {
+        modals.forEach(modal => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+
+    // --- Core Data Management & Display ---
+
+    // Subjects
+    const updateSubjectList = () => {
+        if (subjectListEl) {
+            subjectListEl.innerHTML = subjects.map(s => `
+                <li class="list-item">
+                    <span>${s}</span>
+                    <button class="btn-delete-item" data-action="delete-subject" data-subject="${s}">Delete</button>
+                </li>
+            `).join('');
+        }
+    };
+
+    subjectForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newSubjectInput = document.getElementById('newSubject');
+        const newSubject = newSubjectInput.value.trim();
+        if (newSubject && !subjects.includes(newSubject)) {
+            subjects.push(newSubject);
+            saveData();
+            updateSubjectList();
+            populateAssignmentModalSelects(); // Update assignment/lecture subject dropdowns
+            populateLectureModalSelects();
+            showNotification('Subject added successfully!', 'success');
+            newSubjectInput.value = '';
+        } else if (newSubject && subjects.includes(newSubject)) {
+            showNotification('Subject already exists.', 'warning');
+        }
+    });
+
+    // Event Delegation for Subject Deletion
+    subjectListEl?.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.dataset.action === 'delete-subject') {
+            const subjectToDelete = target.dataset.subject;
+            if (confirm(`Are you sure you want to delete the subject "${subjectToDelete}"? This will also remove all assignments and lectures associated with it.`)) {
+                subjects = subjects.filter(s => s !== subjectToDelete);
+                assignments = assignments.filter(a => a.subject !== subjectToDelete);
+                lectures = lectures.filter(l => l.subject !== subjectToDelete);
+                saveData();
+                updateSubjectList();
+                populateAssignmentModalSelects();
+                populateLectureModalSelects();
+                updateAssignmentsList();
+                updateLecturesList();
+                updateDashboardStats();
+                updateGradesDisplay();
+                showNotification('Subject and associated data deleted.', 'info');
+            }
+        }
+    });
+
+    // Semesters
+    const updateSemesterList = () => {
+        if (semesterListEl) {
+            semesterListEl.innerHTML = semesters.map(s => `
+                <li class="list-item">
+                    <span>${s.name} (${s.startDate} to ${s.endDate})</span>
+                    <button class="btn-delete-item" data-action="delete-semester" data-id="${s.id}">Delete</button>
+                </li>
+            `).join('');
+        }
+    };
+
+    semesterForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const semesterName = document.getElementById('semesterName').value.trim();
+        const semesterStart = document.getElementById('semesterStart').value;
+        const semesterEnd = document.getElementById('semesterEnd').value;
+
+        if (semesterName && semesterStart && semesterEnd) {
+            semesters.push({ id: nextSemesterId++, name: semesterName, startDate: semesterStart, endDate: semesterEnd });
+            saveData();
+            updateSemesterList();
+            populateSemesterFilters();
+            populateLectureSemesterFilter();
+            populateScheduleSemesterFilter();
+            populateGradesSemesterFilter();
+            populateAssignmentModalSelects();
+            populateLectureModalSelects();
+            showNotification('Semester added successfully!', 'success');
+            semesterForm.reset();
+        } else {
+            showNotification('Please fill all semester fields.', 'error');
+        }
+    });
+
+    // Event Delegation for Semester Deletion
+    semesterListEl?.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.dataset.action === 'delete-semester') {
+            const semesterIdToDelete = parseInt(target.dataset.id);
+            const semesterName = semesters.find(s => s.id === semesterIdToDelete)?.name;
+            if (confirm(`Are you sure you want to delete the semester "${semesterName}"? This will also remove all assignments and lectures associated with it.`)) {
+                semesters = semesters.filter(s => s.id !== semesterIdToDelete);
+                assignments = assignments.filter(a => a.semesterId !== semesterIdToDelete);
+                lectures = lectures.filter(l => l.semesterId !== semesterIdToDelete);
+                saveData();
+                updateSemesterList();
+                populateSemesterFilters();
+                populateLectureSemesterFilter();
+                populateScheduleSemesterFilter();
+                populateGradesSemesterFilter();
+                populateAssignmentModalSelects();
+                populateLectureModalSelects();
+                updateAssignmentsList();
+                updateLecturesList();
+                updateDashboardStats();
+                updateGradesDisplay();
+                showNotification('Semester and associated data deleted.', 'info');
+            }
+        }
+    });
+
+
+    // Assignments
+    const populateAssignmentModalSelects = () => {
+        if (assignmentSubjectSelect) {
+            assignmentSubjectSelect.innerHTML = '<option value="">Select Subject</option>' +
+                subjects.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+        if (assignmentSemesterSelect) {
+            assignmentSemesterSelect.innerHTML = '<option value="">Select Semester</option>' +
+                semesters.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
         }
     };
 
     const updateAssignmentsList = () => {
-        const list = document.getElementById('assignmentsList');
-        if (!list) return;
-        const filter = document.getElementById('assignmentFilter')?.value;
-        const semesterId = parseInt(document.getElementById('semesterFilter')?.value) || 'all';
+        if (!assignmentsListEl) return;
 
-        const filteredAssignments = assignments
-            .filter(a => {
-                if (semesterId !== 'all' && a.semesterId !== semesterId) return false;
-                if (filter === 'all') return true;
-                if (filter === 'overdue') return new Date(`${a.dueDate}T${a.dueTime}`) < new Date() && a.status !== 'completed';
-                return a.status === filter;
-            })
-            .sort((a, b) => new Date(`${a.dueDate}T${a.dueTime}`) - new Date(`${b.dueDate}T${b.dueTime}`)); // Sort by due date
+        const filterStatus = assignmentFilter?.value || 'all';
+        const filterSemesterId = parseInt(semesterFilter?.value) || 'all';
 
-        list.innerHTML = filteredAssignments.length > 0 ? filteredAssignments
-            .map(a => `
-                <div class="assignment-card">
-                    <h3>${a.title}</h3>
-                    <p>Subject: ${a.subject}</p>
-                    <p>Semester: ${semesters.find(s => s.id === a.semesterId)?.name || 'N/A'}</p>
-                    <p>Due: ${a.dueDate} ${a.dueTime}</p>
-                    <p>Priority: ${a.priority}</p>
-                    <p>Status: ${a.status}</p>
-                    <p>Grade: ${a.grade !== null ? a.grade + '%' : 'Not graded'}</p>
-                    <div class="assignment-actions">
-                        <button class="btn-secondary" onclick="markAsCompleted(${a.id})">${a.status === 'completed' ? 'Mark Pending' : 'Mark Completed'}</button>
-                        <button class="btn-secondary" onclick="assignGrade(${a.id})">Grade</button>
-                        <button class="btn-delete-item" onclick="removeAssignment(${a.id})">Delete</button>
+        const filteredAssignments = assignments.filter(a => {
+            const isOverdue = new Date(a.dueDate + 'T' + a.dueTime) < new Date() && a.status === 'pending';
+            const matchesStatus = (filterStatus === 'all') ||
+                                  (filterStatus === 'overdue' && isOverdue) ||
+                                  (filterStatus === a.status && filterStatus !== 'overdue');
+            const matchesSemester = (filterSemesterId === 'all') || (a.semesterId === filterSemesterId);
+            return matchesStatus && matchesSemester;
+        }).sort((a, b) => new Date(a.dueDate + 'T' + a.dueTime) - new Date(b.dueDate + 'T' + b.dueTime));
+
+        assignmentsListEl.innerHTML = filteredAssignments.length === 0
+            ? '<p class="no-items">No assignments found for the current filters.</p>'
+            : filteredAssignments.map(a => {
+                const isOverdue = new Date(a.dueDate + 'T' + a.dueTime) < new Date() && a.status === 'pending';
+                const statusClass = a.status === 'completed' ? 'assignment-completed' : (isOverdue ? 'assignment-overdue' : 'assignment-pending');
+                const semesterName = semesters.find(s => s.id === a.semesterId)?.name || 'N/A';
+                return `
+                    <div class="assignment-card ${statusClass}">
+                        <h3>${a.title}</h3>
+                        <p><strong>Subject:</strong> ${a.subject}</p>
+                        <p><strong>Semester:</strong> ${semesterName}</p>
+                        <p><strong>Due:</strong> ${a.dueDate} at ${a.dueTime}</p>
+                        <p><strong>Priority:</strong> <span class="priority-${a.priority}">${a.priority.toUpperCase()}</span></p>
+                        <p><strong>Status:</strong> ${a.status.charAt(0).toUpperCase() + a.status.slice(1)}</p>
+                        ${a.grade ? `<p><strong>Grade:</strong> ${a.grade}</p>` : ''}
+                        <div class="assignment-actions">
+                            <button class="btn-secondary" data-id="${a.id}" data-action="toggle-complete">${a.status === 'completed' ? 'Mark Pending' : 'Mark Completed'}</button>
+                            ${a.status === 'completed' && !a.grade ? `<button class="btn-secondary" data-id="${a.id}" data-action="assign-grade">Grade</button>` : ''}
+                            <button class="btn-delete-item" data-id="${a.id}" data-action="remove-assignment">Delete</button>
+                        </div>
                     </div>
-                </div>
-            `)
-            .join('') : '<p>No assignments found for the selected filters.</p>';
+                `;
+            }).join('');
     };
 
-    // --- Lectures Management ---
-    document.getElementById('lectureForm')?.addEventListener('submit', (e) => {
+    assignmentForm?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const lecture = {
-            id: Date.now(),
-            title: document.getElementById('lectureTitle')?.value.trim(),
-            subject: document.getElementById('lectureSubject')?.value,
-            semesterId: parseInt(document.getElementById('lectureSemester')?.value),
-            date: document.getElementById('lectureDate')?.value,
-            time: document.getElementById('lectureTime')?.value,
-            location: document.getElementById('lectureLocation')?.value.trim(),
-            duration: 90 // Hardcoded duration for now
+        const newAssignment = {
+            id: nextAssignmentId++,
+            title: document.getElementById('assignmentTitle').value,
+            subject: document.getElementById('assignmentSubject').value,
+            semesterId: parseInt(document.getElementById('assignmentSemester').value),
+            dueDate: document.getElementById('assignmentDueDate').value,
+            dueTime: document.getElementById('assignmentDueTime').value,
+            priority: document.getElementById('assignmentPriority').value,
+            status: 'pending',
+            grade: null
         };
-        if (!lecture.title || !lecture.subject || isNaN(lecture.semesterId) || !lecture.date || !lecture.time) {
-            notify('Please fill all required fields for the lecture.', 'error');
-            return;
-        }
-        lectures.push(lecture);
+        assignments.push(newAssignment);
         saveData();
-        logActivity(`Added lecture: ${lecture.title}`);
-        updateLecturesList();
-        updateTodaySchedule();
-        updateCalendar();
-        notify('Lecture added successfully!');
-        e.target.reset();
-        const modal = document.getElementById('lectureModal');
-        modal.classList.remove('show');
-        setTimeout(() => modal.style.display = 'none', 300);
+        updateAssignmentsList();
+        updateDashboardStats();
+        updateUpcomingDeadlines();
+        showNotification('Assignment added successfully!', 'success');
+        document.getElementById('assignmentModal').style.display = 'none';
+        assignmentForm.reset();
     });
 
-    window.removeLecture = (id) => {
-        const lectureToRemove = lectures.find(l => l.id === id);
-        if (lectureToRemove && confirm(`Delete lecture: "${lectureToRemove.title}"?`)) {
-            lectures = lectures.filter(l => l.id !== id);
-            saveData();
-            logActivity(`Deleted lecture: ${lectureToRemove.title}`);
-            updateLecturesList();
-            updateTodaySchedule();
-            updateCalendar();
-            notify('Lecture deleted!');
+    const populateSemesterFilters = () => {
+        const filterElements = [semesterFilter, lectureSemesterFilter, scheduleSemesterFilter, gradesSemesterFilter];
+        filterElements.forEach(selectEl => {
+            if (selectEl) {
+                const currentVal = selectEl.value; // Preserve current selection
+                selectEl.innerHTML = '<option value="all">All Semesters</option>' +
+                    semesters.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                if (currentVal) selectEl.value = currentVal; // Restore selection
+            }
+        });
+    };
+
+    assignmentFilter?.addEventListener('change', updateAssignmentsList);
+    semesterFilter?.addEventListener('change', updateAssignmentsList);
+
+    // Event Delegation for Assignment Actions
+    assignmentsListEl?.addEventListener('click', (e) => {
+        const target = e.target;
+        const id = parseInt(target.dataset.id);
+
+        if (isNaN(id)) return; // Not a button with a valid ID
+
+        if (target.dataset.action === 'toggle-complete') {
+            const assignment = assignments.find(a => a.id === id);
+            if (assignment) {
+                assignment.status = assignment.status === 'completed' ? 'pending' : 'completed';
+                if (assignment.status === 'pending') {
+                    assignment.grade = null; // Remove grade if marked pending
+                }
+                saveData();
+                updateAssignmentsList();
+                updateDashboardStats();
+                updateUpcomingDeadlines();
+                updateGradesDisplay();
+                showNotification(`Assignment marked as ${assignment.status}!`, 'info');
+            }
+        } else if (target.dataset.action === 'assign-grade') {
+            const assignment = assignments.find(a => a.id === id);
+            if (assignment) {
+                let grade = prompt(`Enter grade for "${assignment.title}" (e.g., A+, B, 95%):`);
+                if (grade !== null) {
+                    assignment.grade = grade.trim();
+                    saveData();
+                    updateAssignmentsList();
+                    updateDashboardStats();
+                    updateGradesDisplay();
+                    showNotification('Grade assigned successfully!', 'success');
+                }
+            }
+        } else if (target.dataset.action === 'remove-assignment') {
+            if (confirm('Are you sure you want to delete this assignment?')) {
+                assignments = assignments.filter(a => a.id !== id);
+                saveData();
+                updateAssignmentsList();
+                updateDashboardStats();
+                updateUpcomingDeadlines();
+                updateGradesDisplay();
+                showNotification('Assignment deleted!', 'info');
+            }
+        }
+    });
+
+    // Lectures
+    const populateLectureModalSelects = () => {
+        if (lectureSubjectSelect) {
+            lectureSubjectSelect.innerHTML = '<option value="">Select Subject</option>' +
+                subjects.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+        if (lectureSemesterSelect) {
+            lectureSemesterSelect.innerHTML = '<option value="">Select Semester</option>' +
+                semesters.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
         }
     };
 
     const updateLecturesList = () => {
-        const list = document.getElementById('lecturesList');
-        if (!list) return;
-        const semesterId = parseInt(document.getElementById('lectureSemesterFilter')?.value) || 'all';
-        const filteredLectures = lectures
-            .filter(l => semesterId === 'all' || l.semesterId === semesterId)
-            .sort((a, b) => {
-                const dateTimeA = new Date(`${a.date}T${a.time}`);
-                const dateTimeB = new Date(`${b.date}T${b.time}`);
-                return dateTimeA - dateTimeB;
-            });
+        if (!lecturesListEl) return;
 
-        list.innerHTML = filteredLectures.length > 0 ? filteredLectures
-            .map(l => `
-                <div class="assignment-card">
-                    <h3>${l.title}</h3>
-                    <p>Subject: ${l.subject}</p>
-                    <p>Semester: ${semesters.find(s => s.id === l.semesterId)?.name || 'N/A'}</p>
-                    <p>Date: ${l.date} ${l.time}</p>
-                    <p>Location: ${l.location || 'N/A'}</p>
-                    <button class="btn-delete-item" onclick="removeLecture(${l.id})">Delete</button>
-                </div>
-            `)
-            .join('') : '<p>No lectures found for the selected semester.</p>';
-    };
+        const filterSemesterId = parseInt(lectureSemesterFilter?.value) || 'all';
 
-    // --- Dashboard Stats ---
-    const updateDashboardStats = () => {
-        document.getElementById('totalAssignments').textContent = assignments.length;
-        document.getElementById('completedAssignments').textContent = assignments.filter(a => a.status === 'completed').length;
-        document.getElementById('pendingAssignments').textContent = assignments.filter(a => a.status !== 'completed').length;
-        document.getElementById('averageGrade').textContent = calculateAverageGrade();
-    };
+        const filteredLectures = lectures.filter(l => {
+            const matchesSemester = (filterSemesterId === 'all') || (l.semesterId === filterSemesterId);
+            return matchesSemester;
+        }).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
 
-    const calculateAverageGrade = () => {
-        const grades = assignments.filter(a => a.grade !== null).map(a => a.grade);
-        if (!grades.length) return 'N/A';
-        const avg = (grades.reduce((sum, g) => sum + g, 0) / grades.length).toFixed(1);
-        return `${avg}% (${getLetterGrade(parseFloat(avg))})`;
-    };
-
-    const getLetterGrade = (grade) => {
-        if (grade >= 90) return 'A';
-        if (grade >= 80) return 'B';
-        if (grade >= 70) return 'C';
-        if (grade >= 60) return 'D';
-        return 'F';
-    };
-
-    // --- Upcoming Deadlines ---
-    const updateUpcomingDeadlines = () => {
-        const list = document.getElementById('upcomingDeadlines');
-        if (!list) return;
-        const now = new Date();
-        const upcoming = assignments
-            .filter(a => a.status !== 'completed' && new Date(`${a.dueDate}T${a.dueTime}`) > now)
-            .sort((a, b) => new Date(`${a.dueDate}T${a.dueTime}`) - new Date(`${b.dueDate}T${b.dueTime}`))
-            .slice(0, 5);
-
-        list.innerHTML = upcoming.length > 0 ? upcoming
-            .map(a => `<p>${a.title} (${a.subject}) - Due: ${a.dueDate} ${a.dueTime}</p>`)
-            .join('') : '<p>No upcoming deadlines.</p>';
-    };
-
-    // --- Today's Schedule ---
-    const updateTodaySchedule = () => {
-        const list = document.getElementById('todaySchedule');
-        if (!list) return;
-        const today = new Date().toISOString().split('T')[0];
-        const todaysLectures = lectures
-            .filter(l => l.date === today)
-            .sort((a, b) => a.time.localeCompare(b.time));
-
-        list.innerHTML = todaysLectures.length > 0 ? todaysLectures
-            .map(l => `<p>${l.title} (${l.subject}) - ${l.time} (${l.location || 'N/A'})</p>`)
-            .join('') : '<p>No lectures scheduled for today.</p>';
-    };
-
-    // --- Grades ---
-    const updateGrades = () => {
-        const semesterId = parseInt(document.getElementById('gradesSemesterFilter')?.value) || 'all';
-        const filteredAssignments = assignments.filter(a => semesterId === 'all' || a.semesterId === semesterId);
-
-        // Update GPA
-        document.getElementById('currentGPA').textContent = calculateGPA(filteredAssignments).toFixed(2);
-
-        // Update Semester Stats (Average grade per subject for the filtered semester)
-        const semesterStatsHtml = subjects
-            .map(s => {
-                const grades = filteredAssignments.filter(a => a.subject === s && a.grade !== null).map(a => a.grade);
-                if (!grades.length) return '';
-                const avg = grades.reduce((sum, g) => sum + g, 0) / grades.length;
-                return `<p>${s}: ${avg.toFixed(1)}% (${getLetterGrade(parseFloat(avg.toFixed(1)))})</p>`;
-            })
-            .join('');
-        document.getElementById('semesterStats').innerHTML = semesterStatsHtml || '<p>No graded assignments for this semester.</p>';
-
-
-        // Update Subject Grades (Individual subject cards)
-        const subjectGradesHtml = subjects
-            .map(s => {
-                const grades = filteredAssignments.filter(a => a.subject === s && a.grade !== null).map(a => a.grade);
-                if (!grades.length) return '';
-                const avg = grades.reduce((sum, g) => sum + g, 0) / grades.length;
+        lecturesListEl.innerHTML = filteredLectures.length === 0
+            ? '<p class="no-items">No lectures found for the current filters.</p>'
+            : filteredLectures.map(l => {
+                const semesterName = semesters.find(s => s.id === l.semesterId)?.name || 'N/A';
                 return `
-                    <div class="assignment-card">
-                        <h3>${s}</h3>
-                        <p>Average: ${avg.toFixed(1)}% (${getLetterGrade(parseFloat(avg.toFixed(1)))})</p>
-                        <p>Assignments Graded: ${grades.length}</p>
+                    <div class="lecture-card">
+                        <h3>${l.title}</h3>
+                        <p><strong>Subject:</strong> ${l.subject}</p>
+                        <p><strong>Semester:</strong> ${semesterName}</p>
+                        <p><strong>Date:</strong> ${l.date}</p>
+                        <p><strong>Time:</strong> ${l.time}</p>
+                        <p><strong>Location:</strong> ${l.location || 'N/A'}</p>
+                        <div class="lecture-actions">
+                            <button class="btn-delete-item" data-id="${l.id}" data-action="remove-lecture">Delete</button>
+                        </div>
                     </div>
                 `;
-            })
-            .join('');
-        document.getElementById('subjectGrades').innerHTML = subjectGradesHtml || '<p>No subjects with graded assignments for the selected semester.</p>';
+            }).join('');
     };
 
-    const calculateGPA = (filteredAssignments) => {
-        const subjectAverages = {};
-        filteredAssignments.forEach(a => {
-            if (a.grade !== null) {
-                if (!subjectAverages[a.subject]) {
-                    subjectAverages[a.subject] = { sum: 0, count: 0 };
-                }
-                subjectAverages[a.subject].sum += a.grade;
-                subjectAverages[a.subject].count++;
+    lectureForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newLecture = {
+            id: nextLectureId++,
+            title: document.getElementById('lectureTitle').value,
+            subject: document.getElementById('lectureSubject').value,
+            semesterId: parseInt(document.getElementById('lectureSemester').value),
+            date: document.getElementById('lectureDate').value,
+            time: document.getElementById('lectureTime').value,
+            location: document.getElementById('lectureLocation').value
+        };
+        lectures.push(newLecture);
+        saveData();
+        updateLecturesList();
+        renderCalendar();
+        updateTodaySchedule();
+        showNotification('Lecture added successfully!', 'success');
+        document.getElementById('lectureModal').style.display = 'none';
+        lectureForm.reset();
+    });
+
+    const populateLectureSemesterFilter = () => {
+        if (lectureSemesterFilter) {
+            const currentVal = lectureSemesterFilter.value;
+            lectureSemesterFilter.innerHTML = '<option value="all">All Semesters</option>' +
+                semesters.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            if (currentVal) lectureSemesterFilter.value = currentVal;
+        }
+    };
+
+    lectureSemesterFilter?.addEventListener('change', updateLecturesList);
+
+    // Event Delegation for Lecture Deletion
+    lecturesListEl?.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.dataset.action === 'remove-lecture') {
+            const id = parseInt(target.dataset.id);
+            if (confirm('Are you sure you want to delete this lecture?')) {
+                lectures = lectures.filter(l => l.id !== id);
+                saveData();
+                updateLecturesList();
+                renderCalendar();
+                updateTodaySchedule();
+                showNotification('Lecture deleted!', 'info');
             }
-        });
+        }
+    });
 
-        const gpaPoints = Object.values(subjectAverages).map(data => {
-            const avg = data.sum / data.count;
-            // Convert percentage to 4.0 scale (simple linear conversion)
-            // Example: 90-100 = 4.0, 80-89 = 3.0, etc. Adjust as per your university's scale
-            if (avg >= 90) return 4.0;
-            if (avg >= 80) return 3.0;
-            if (avg >= 70) return 2.0;
-            if (avg >= 60) return 1.0;
-            return 0.0;
-        });
-
-        if (!gpaPoints.length) return 0.00;
-        return (gpaPoints.reduce((sum, val) => sum + val, 0) / gpaPoints.length);
-    };
-
-    // --- FullCalendar Integration ---
-    let calendar;
-    const updateCalendar = () => {
-        const semesterId = parseInt(document.getElementById('scheduleSemesterFilter')?.value) || 'all';
+    // Schedule (FullCalendar)
+    const renderCalendar = () => {
         const calendarEl = document.getElementById('fullCalendar');
         if (!calendarEl) return;
 
-        // Destroy existing calendar instance before re-initializing
-        if (calendar) calendar.destroy();
+        const currentFilterSemesterId = parseInt(scheduleSemesterFilter?.value) || 'all';
 
-        try {
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                events: [
-                    // Lectures
-                    ...lectures
-                        .filter(l => semesterId === 'all' || l.semesterId === semesterId)
-                        .map(l => ({
-                            id: `lecture-${l.id}`,
-                            title: `${l.title} (${l.subject})`,
-                            start: `${l.date}T${l.time}`,
-                            // Calculate end time for lectures based on duration
-                            end: new Date(new Date(`${l.date}T${l.time}`).getTime() + l.duration * 60 * 1000).toISOString(),
-                            classNames: ['lecture'],
-                            color: '#6a5acd' // Consistent with CSS
-                        })),
-                    // Assignments (pending only)
-                    ...assignments
-                        .filter(a => (semesterId === 'all' || a.semesterId === semesterId) && a.status !== 'completed')
-                        .map(a => ({
-                            id: `assignment-${a.id}`,
-                            title: `${a.title} (Due)`,
-                            start: `${a.dueDate}T${a.dueTime}`,
-                            classNames: ['assignment'],
-                            color: '#ff69b4' // Consistent with CSS
-                        })),
-                    // Holidays
-                    ...holidays
-                        .filter(h => {
-                            if (semesterId === 'all' || !semesters.length) return true; // Show all holidays if no semester is selected or if no semesters are defined
-                            const semester = semesters.find(s => s.id === semesterId);
-                            if (!semester) return false;
-                            const holidayDate = new Date(h.date);
-                            const semesterStartDate = new Date(semester.start);
-                            const semesterEndDate = new Date(semester.end);
-                            return holidayDate >= semesterStartDate && holidayDate <= semesterEndDate;
-                        })
-                        .map(h => ({
-                            id: `holiday-${h.date}`, // Use date for unique ID
-                            title: h.title,
-                            start: h.date,
-                            classNames: ['holiday'],
-                            allDay: true,
-                            color: '#4682b4' // Consistent with CSS
-                        }))
-                ],
-                dateClick: (info) => {
-                    console.log('Calendar date clicked:', info.dateStr);
-                    const promptResponse = prompt(`You clicked on ${info.dateStr}.\nAdd (1) Lecture or (2) Assignment? Enter 1 or 2:`);
-                    if (promptResponse === '1') {
-                        document.getElementById('lectureDate').value = info.dateStr;
-                        document.getElementById('lectureModal').style.display = 'flex';
-                        document.getElementById('lectureModal').classList.add('show');
-                        updateSubjectOptions();
-                        updateSemesterOptions();
-                    } else if (promptResponse === '2') {
-                        document.getElementById('assignmentDueDate').value = info.dateStr;
-                        document.getElementById('assignmentModal').style.display = 'flex';
-                        document.getElementById('assignmentModal').classList.add('show');
-                        updateSubjectOptions();
-                        updateSemesterOptions();
-                    }
-                },
-                eventClick: (info) => {
-                    console.log('Calendar event clicked:', info.event.id);
-                    const [type, id] = info.event.id.split('-');
-                    if (type === 'holiday') {
-                        alert(`Holiday: ${info.event.title}\nDate: ${new Date(info.event.start).toLocaleDateString()}`);
-                        return;
-                    }
-                    if (confirm(`Are you sure you want to delete this ${type}: "${info.event.title}"?`)) {
-                        if (type === 'lecture') {
-                            removeLecture(parseInt(id));
-                        } else if (type === 'assignment') {
-                            removeAssignment(parseInt(id));
-                        }
-                    }
+        const events = [];
+
+        // Add assignments as events
+        assignments.forEach(a => {
+            if (currentFilterSemesterId === 'all' || a.semesterId === currentFilterSemesterId) {
+                events.push({
+                    id: `assignment-${a.id}`,
+                    title: `Assignment: ${a.title} (${a.subject})`,
+                    start: `${a.dueDate}T${a.dueTime}`,
+                    color: a.status === 'completed' ? '#28a745' : (new Date(`${a.dueDate}T${a.dueTime}`) < new Date() ? '#dc3545' : '#007bff'),
+                    extendedProps: { type: 'assignment', status: a.status, priority: a.priority }
+                });
+            }
+        });
+
+        // Add lectures as events
+        lectures.forEach(l => {
+            if (currentFilterSemesterId === 'all' || l.semesterId === currentFilterSemesterId) {
+                events.push({
+                    id: `lecture-${l.id}`,
+                    title: `Lecture: ${l.title} (${l.subject})`,
+                    start: `${l.date}T${l.time}`,
+                    color: '#6f42c1', // Purple for lectures
+                    extendedProps: { type: 'lecture', location: l.location }
+                });
+            }
+        });
+
+        if (calendar) {
+            calendar.destroy(); // Destroy existing calendar instance before re-rendering
+        }
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: events,
+            eventDidMount: function(info) {
+                // Add tooltips or custom rendering if needed
+            },
+            eventClick: function(info) {
+                // Optional: Handle click on an event to show details
+                let eventType = info.event.extendedProps.type;
+                let details = `<h4>${info.event.title}</h4>`;
+                if (eventType === 'assignment') {
+                    details += `<p>Due: ${new Date(info.event.start).toLocaleString()}</p>`;
+                    details += `<p>Status: ${info.event.extendedProps.status}</p>`;
+                    details += `<p>Priority: ${info.event.extendedProps.priority}</p>`;
+                } else if (eventType === 'lecture') {
+                    details += `<p>Time: ${new Date(info.event.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>`;
+                    details += `<p>Location: ${info.event.extendedProps.location || 'N/A'}</p>`;
                 }
-            });
-            calendar.render();
-        } catch (e) {
-            console.error('Error initializing FullCalendar:', e);
-            notify('Failed to load calendar. Please try again.', 'error');
+                showNotification(details, 'info', 5000); // Display event info in a notification
+            }
+        });
+        calendar.render();
+    };
+
+    const populateScheduleSemesterFilter = () => {
+        if (scheduleSemesterFilter) {
+            const currentVal = scheduleSemesterFilter.value;
+            scheduleSemesterFilter.innerHTML = '<option value="all">All Semesters</option>' +
+                semesters.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            if (currentVal) scheduleSemesterFilter.value = currentVal;
         }
     };
 
-    // --- Profile Management ---
-    // Get elements for profile picture handling
-    const profilePicUpload = document.getElementById('profilePicUpload');
-    const profilePicture = document.getElementById('profilePicture');
+    scheduleSemesterFilter?.addEventListener('change', renderCalendar);
 
-    // Get elements for form and displaying profile info
-    const profileForm = document.getElementById('profileForm');
-    const studentNameElement = document.getElementById('studentName');
-    const studentIdDisplayElement = document.getElementById('studentIdDisplay');
-    const studentMajorElement = document.getElementById('studentMajor');
-    const studentYearElement = document.getElementById('studentYear');
 
-    // Get input elements for form submission
-    const fullNameInput = document.getElementById('fullName');
-    const studentIdInput = document.getElementById('studentIdInput');
-    const emailInput = document.getElementById('email');
-    const phoneInput = document.getElementById('phone');
-    const majorInput = document.getElementById('major');
-    const yearSelect = document.getElementById('year');
+    // Grades
+    const updateGradesDisplay = () => {
+        if (!currentGPAEl || !semesterStatsEl || !subjectGradesEl) return;
 
-    // Function to load profile data into form and display
+        const filterSemesterId = parseInt(gradesSemesterFilter?.value) || 'all';
+
+        const filteredAssignments = assignments.filter(a =>
+            a.grade && (filterSemesterId === 'all' || a.semesterId === filterSemesterId)
+        );
+
+        // Calculate Average Grade / GPA
+        let totalPoints = 0;
+        let totalAssignmentsWithGrades = 0;
+        filteredAssignments.forEach(a => {
+            // Simple numerical grade conversion for average.
+            // For true GPA, you'd need credit hours and letter grade mapping.
+            const gradeNum = parseFloat(a.grade);
+            if (!isNaN(gradeNum)) {
+                totalPoints += gradeNum;
+                totalAssignmentsWithGrades++;
+            }
+        });
+
+        const averageGrade = totalAssignmentsWithGrades > 0 ? (totalPoints / totalAssignmentsWithGrades).toFixed(2) : 'N/A';
+        currentGPAEl.textContent = averageGrade; // Renamed to average grade for simplicity
+
+        // Semester Stats (if applicable, though current setup is GPA per subject)
+        semesterStatsEl.innerHTML = `
+            <p><strong>Total Graded Assignments:</strong> ${filteredAssignments.length}</p>
+        `;
+
+        // Grades per Subject
+        const gradesBySubject = {};
+        filteredAssignments.forEach(a => {
+            if (!gradesBySubject[a.subject]) {
+                gradesBySubject[a.subject] = [];
+            }
+            gradesBySubject[a.subject].push(a);
+        });
+
+        subjectGradesEl.innerHTML = Object.keys(gradesBySubject).length === 0
+            ? '<p class="no-items">No graded assignments for the selected filters.</p>'
+            : Object.keys(gradesBySubject).map(subject => {
+                const subjectAssignments = gradesBySubject[subject];
+                const subjectTotalPoints = subjectAssignments.reduce((sum, a) => sum + (parseFloat(a.grade) || 0), 0);
+                const subjectAverage = (subjectTotalPoints / subjectAssignments.length).toFixed(2);
+
+                return `
+                    <div class="subject-grade-card">
+                        <h3>${subject} <span class="subject-avg-grade">Avg: ${subjectAverage}</span></h3>
+                        <ul>
+                            ${subjectAssignments.map(a => `
+                                <li>
+                                    <span>${a.title}</span>
+                                    <span>${a.grade}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }).join('');
+    };
+
+    const populateGradesSemesterFilter = () => {
+        if (gradesSemesterFilter) {
+            const currentVal = gradesSemesterFilter.value;
+            gradesSemesterFilter.innerHTML = '<option value="all">All Semesters</option>' +
+                semesters.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            if (currentVal) gradesSemesterFilter.value = currentVal;
+        }
+    };
+
+    gradesSemesterFilter?.addEventListener('change', updateGradesDisplay);
+
+    // Profile Management
     const loadProfileData = () => {
-        console.log('Loading profile data...');
-        if (profile) {
-            if (fullNameInput) fullNameInput.value = profile.name || '';
-            if (studentIdInput) studentIdInput.value = profile.id || '';
-            if (emailInput) emailInput.value = profile.email || '';
-            if (phoneInput) phoneInput.value = profile.phone || '';
-            if (majorInput) majorInput.value = profile.major || '';
-            if (yearSelect) yearSelect.value = profile.year || '';
+        fullNameInput.value = profileData.fullName || '';
+        emailInput.value = profileData.email || '';
+        phoneInput.value = profileData.phone || '';
+        studentIdInput.value = profileData.studentId || '';
+        majorInput.value = profileData.major || '';
+        yearSelect.value = profileData.year || '';
 
-            // Update displayed profile info
-            if (studentNameElement) studentNameElement.textContent = profile.name || 'Student';
-            if (studentIdDisplayElement) studentIdDisplayElement.textContent = `Student ID: ${profile.id || 'N/A'}`;
-            if (studentMajorElement) studentMajorElement.textContent = `Major: ${profile.major || 'N/A'}`;
-            if (studentYearElement) studentYearElement.textContent = `Year: ${profile.year || 'N/A'}`;
+        studentNameEl.textContent = profileData.fullName || 'Student Name';
+        studentIdDisplayEl.textContent = `Student ID: ${profileData.studentId || 'N/A'}`;
+        studentMajorEl.textContent = `Major: ${profileData.major || 'N/A'}`;
+        studentYearEl.textContent = `Year: ${profileData.year || 'N/A'}`;
+        profilePictureEl.src = profilePictureData;
+    };
 
-            // Handle profile picture display (assuming `profile.picture` stores data URL)
-            if (profilePicture && profile.picture) {
-                profilePicture.src = profile.picture;
-                console.log('Profile picture loaded from storage.');
-            } else if (profilePicture) {
-                profilePicture.src = 'https://via.placeholder.com/150'; // Default placeholder if no picture
-                console.log('No profile picture found, using placeholder.');
-            }
+    profileForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        profileData = {
+            fullName: fullNameInput.value,
+            email: emailInput.value,
+            phone: phoneInput.value,
+            studentId: studentIdInput.value,
+            major: majorInput.value,
+            year: yearSelect.value
+        };
+        saveData();
+        loadProfileData(); // Update displayed info immediately
+        showNotification('Profile updated successfully!', 'success');
+    });
+
+    profilePicUpload?.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                profilePictureData = e.target.result;
+                profilePictureEl.src = profilePictureData;
+                saveData();
+                showNotification('Profile picture updated!', 'success');
+            };
+            reader.readAsDataURL(file);
         }
+    });
+
+    // --- Dashboard Specific Updates ---
+
+    const updateDashboardStats = () => {
+        const total = assignments.length;
+        const completed = assignments.filter(a => a.status === 'completed').length;
+        const pending = total - completed;
+
+        if (totalAssignmentsEl) totalAssignmentsEl.textContent = total;
+        if (completedAssignmentsEl) completedAssignmentsEl.textContent = completed;
+        if (pendingAssignmentsEl) pendingAssignmentsEl.textContent = pending;
+
+        const gradedAssignments = assignments.filter(a => a.grade && !isNaN(parseFloat(a.grade)));
+        const totalGradePoints = gradedAssignments.reduce((sum, a) => sum + parseFloat(a.grade), 0);
+        const avgGrade = gradedAssignments.length > 0 ? (totalGradePoints / gradedAssignments.length).toFixed(2) : 'N/A';
+        if (averageGradeEl) averageGradeEl.textContent = avgGrade;
     };
 
-    // Function to handle profile picture upload
-    if (profilePicUpload && profilePicture) {
-        profilePicUpload.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    profilePicture.src = e.target.result;
-                    profile.picture = e.target.result; // Save picture data to profile object
-                    saveData(); // <--- VERIFIED FIX: Call saveData() immediately after updating picture
-                    notify('Profile picture updated!');
-                    logActivity('Profile picture updated.');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
+    const updateUpcomingDeadlines = () => {
+        if (!upcomingDeadlinesEl) return;
+        const now = new Date();
+        const upcoming = assignments
+            .filter(a => a.status === 'pending' && new Date(a.dueDate + 'T' + a.dueTime) > now)
+            .sort((a, b) => new Date(a.dueDate + 'T' + a.dueTime) - new Date(b.dueDate + 'T' + b.dueTime))
+            .slice(0, 5); // Show top 5 upcoming
 
-    // Event listener for profile form submission
-    if (profileForm) {
-        profileForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            console.log('Profile form submitted.');
-
-            // Collect form data into profile object
-            profile.name = fullNameInput?.value.trim();
-            profile.id = studentIdInput?.value.trim();
-            profile.email = emailInput?.value.trim();
-            profile.phone = phoneInput?.value.trim();
-            profile.major = majorInput?.value.trim();
-            profile.year = yearSelect?.value;
-
-            saveData(); // <--- VERIFIED FIX: Call saveData() after updating profile object with form data
-            logActivity('Updated profile information');
-            loadProfileData(); // Reload data to ensure display is updated
-            notify('Profile updated successfully!');
-        });
-    }
-
-    // --- Pomodoro Timer ---
-    let timerInterval;
-    let timeLeft = 25 * 60; // Default to 25 minutes work session
-    let isWorkSession = true;
-    let cycleCount = 0;
-
-    const updateTimerDisplay = () => {
-        const min = Math.floor(timeLeft / 60);
-        const sec = timeLeft % 60;
-        document.getElementById('timerDisplay').textContent = `${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
-        document.getElementById('timerStatus').textContent = isWorkSession ? 'Work Session' : 'Break';
-    };
-
-    document.getElementById('startTimer')?.addEventListener('click', () => {
-        console.log('Pomodoro start/pause clicked');
-        if (!timerInterval) {
-            timerInterval = setInterval(() => {
-                if (timeLeft <= 0) {
-                    playSound(); // Play sound when session ends
-                    clearInterval(timerInterval); // Stop current interval
-                    timerInterval = null; // Clear interval ID
-
-                    if (isWorkSession) {
-                        cycleCount++;
-                        if (cycleCount % 4 === 0) {
-                            timeLeft = 15 * 60; // Long break
-                            notify('Time for a long break! (15 minutes)');
-                        } else {
-                            timeLeft = 5 * 60; // Short break
-                            notify('Time for a short break! (5 minutes)');
-                        }
-                    } else { // It was a break, start a new work session
-                        timeLeft = 25 * 60; // New work session
-                        notify('Back to work! (25 minutes)');
-                    }
-                    isWorkSession = !isWorkSession;
-                    updateTimerDisplay();
-                    document.getElementById('startTimer').textContent = 'Start'; // Reset button text for next session
-                    return;
-                }
-                timeLeft--;
-                updateTimerDisplay();
-            }, 1000);
-            document.getElementById('startTimer').textContent = 'Pause';
+        if (upcoming.length === 0) {
+            upcomingDeadlinesEl.innerHTML = '<p class="no-items">No upcoming assignments.</p>';
         } else {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            document.getElementById('startTimer').textContent = 'Resume';
+            upcomingDeadlinesEl.innerHTML = upcoming.map(a => {
+                const dueDateObj = new Date(a.dueDate + 'T' + a.dueTime);
+                return `
+                    <div class="deadline-item">
+                        <span>${a.title} (${a.subject})</span>
+                        <span>${dueDateObj.toLocaleDateString()} ${dueDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+    };
+
+    const updateTodaySchedule = () => {
+        if (!todayScheduleEl) return;
+        const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+        const todayLectures = lectures
+            .filter(l => l.date === today)
+            .sort((a, b) => a.time.localeCompare(b.time));
+
+        if (todayLectures.length === 0) {
+            todayScheduleEl.innerHTML = '<p class="no-items">No lectures scheduled for today.</p>';
+        } else {
+            todayScheduleEl.innerHTML = todayLectures.map(l => `
+                <div class="schedule-item">
+                    <span>${l.time} - ${l.title} (${l.subject})</span>
+                    <span>${l.location || 'N/A'}</span>
+                </div>
+            `).join('');
+        }
+    };
+
+    // --- Pomodoro Timer Logic ---
+    const updateTimerDisplay = () => {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    const startTimer = () => {
+        if (!isPaused) return;
+
+        isPaused = false;
+        startTimerBtn.textContent = 'Pause';
+        startTimerBtn.classList.remove('btn-primary');
+        startTimerBtn.classList.add('btn-warning');
+
+        pomodoroTimer = setInterval(() => {
+            timeRemaining--;
+            updateTimerDisplay();
+
+            if (timeRemaining <= 0) {
+                clearInterval(pomodoroTimer);
+                if (sessionType === 'work') {
+                    workSessionsCompleted++;
+                    showNotification('Work session completed! Time for a break.', 'success', 4000);
+                    sessionType = (workSessionsCompleted % 4 === 0) ? 'long-break' : 'break';
+                    timeRemaining = (sessionType === 'long-break') ? LONG_BREAK_TIME : BREAK_TIME;
+                    timerStatus.textContent = sessionType === 'long-break' ? 'Long Break' : 'Break Session';
+                } else {
+                    showNotification('Break completed! Time to get back to work.', 'info', 4000);
+                    sessionType = 'work';
+                    timeRemaining = WORK_TIME;
+                    timerStatus.textContent = 'Work Session';
+                }
+                isPaused = true;
+                startTimerBtn.textContent = 'Start';
+                startTimerBtn.classList.remove('btn-warning');
+                startTimerBtn.classList.add('btn-primary');
+                updateTimerDisplay(); // Update display to new session time
+            }
+        }, 1000);
+    };
+
+    const resetTimer = () => {
+        clearInterval(pomodoroTimer);
+        isPaused = true;
+        sessionType = 'work';
+        timeRemaining = WORK_TIME;
+        workSessionsCompleted = 0;
+        timerStatus.textContent = 'Work Session';
+        startTimerBtn.textContent = 'Start';
+        startTimerBtn.classList.remove('btn-warning');
+        startTimerBtn.classList.add('btn-primary');
+        updateTimerDisplay();
+    };
+
+    startTimerBtn?.addEventListener('click', () => {
+        if (isPaused) {
+            startTimer();
+        } else {
+            clearInterval(pomodoroTimer);
+            isPaused = true;
+            startTimerBtn.textContent = 'Resume';
+            startTimerBtn.classList.remove('btn-warning');
+            startTimerBtn.classList.add('btn-primary');
         }
     });
 
-    document.getElementById('resetTimer')?.addEventListener('click', () => {
-        console.log('Pomodoro reset clicked');
-        clearInterval(timerInterval);
-        timerInterval = null;
-        timeLeft = 25 * 60; // Reset to initial work session time
-        isWorkSession = true;
-        cycleCount = 0;
-        updateTimerDisplay();
-        document.getElementById('startTimer').textContent = 'Start';
-        notify('Pomodoro timer reset.');
-    });
+    resetTimerBtn?.addEventListener('click', resetTimer);
 
-    // --- To-Do List ---
-    document.getElementById('todoForm')?.addEventListener('submit', (e) => {
+    // Initialize Pomodoro Timer
+    timeRemaining = WORK_TIME;
+    updateTimerDisplay();
+
+    // --- Daily To-Do List ---
+    const updateTodoList = () => {
+        if (!todoListEl) return;
+        todoListEl.innerHTML = todos.map((todo, index) => `
+            <li class="${todo.completed ? 'completed' : ''}">
+                <input type="checkbox" data-index="${index}" ${todo.completed ? 'checked' : ''}>
+                <span>${todo.text}</span>
+                <button class="btn-delete-item" data-index="${index}" data-action="delete-todo">Delete</button>
+            </li>
+        `).join('');
+    };
+
+    todoForm?.addEventListener('submit', (e) => {
         e.preventDefault();
         const todoInput = document.getElementById('todoInput');
-        const task = todoInput?.value.trim();
-        if (task) {
-            todos.push({ id: Date.now(), task, completed: false });
+        const taskText = todoInput.value.trim();
+        if (taskText) {
+            todos.push({ text: taskText, completed: false });
             saveData();
             updateTodoList();
-            notify('Task added to to-do list!');
-            todoInput.value = ''; // Clear input field
-        } else {
-            notify('Please enter a task.', 'error');
+            showNotification('Task added!', 'success');
+            todoInput.value = '';
         }
     });
 
-    const updateTodoList = () => {
-        const list = document.getElementById('todoList');
-        if (!list) return;
-        list.innerHTML = todos.length > 0 ? todos
-            .map(t => `
-                <li class="${t.completed ? 'completed' : ''}">
-                    <span onclick="toggleTodo(${t.id})">${t.task}</span>
-                    <button class="btn-delete-item" onclick="removeTodo(${t.id})">Delete</button>
-                </li>
-            `)
-            .join('') : '<p>No tasks yet. Add one above!</p>';
-    };
-
-    window.toggleTodo = (id) => {
-        const todo = todos.find(t => t.id === id);
-        if (todo) {
-            todo.completed = !todo.completed;
-            saveData();
-            logActivity(`${todo.completed ? 'Completed' : 'Uncompleted'} task: ${todo.task}`);
-            updateTodoList();
-            notify(`Task marked as ${todo.completed ? 'completed' : 'incomplete'}!`);
-        }
-    };
-
-    window.removeTodo = (id) => {
-        const todoToRemove = todos.find(t => t.id === id);
-        if (todoToRemove && confirm(`Delete task: "${todoToRemove.task}"?`)) {
-            todos = todos.filter(t => t.id !== id);
-            saveData();
-            logActivity(`Deleted task: ${todoToRemove.task}`);
-            updateTodoList();
-            notify('Task deleted!');
-        }
-    };
-
-    // --- Chat Assistant ---
-    const addChatMessage = (content, sender = 'user') => {
-        const chatMessagesDiv = document.getElementById('chatMessages');
-        if (!chatMessagesDiv) return;
-
-        const div = document.createElement('div');
-        div.className = `chat-message ${sender}`;
-        div.textContent = content;
-        chatMessagesDiv.appendChild(div);
-        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight; // Auto-scroll to bottom
-    };
-
-    const processChatInput = (input) => {
-        input = input.toLowerCase().trim();
-        addChatMessage(input, 'user');
-
-        let response = '';
-        if (input.includes('help') || input.includes('hi') || input === 'hello') {
-            response = 'Hi there! I\'m your CollegeBuddy Assistant. You can ask me about: \n- **Assignments:** "upcoming assignments", "graded assignments"\n- **Lectures:** "today\'s lectures", "all lectures"\n- **Grades:** "my GPA", "subject grades"\n- **Schedule:** "what\'s on my calendar"\n- **Timer:** "start timer", "reset timer"\n- **To-Do List:** "my todos"';
-        } else if (input.includes('upcoming assignment')) {
-            const upcoming = assignments.filter(a => a.status !== 'completed' && new Date(`${a.dueDate}T${a.dueTime}`) > new Date()).sort((a, b) => new Date(`${a.dueDate}T${a.dueTime}`) - new Date(`${b.dueDate}T${b.dueTime}`)).slice(0, 3);
-            response = upcoming.length > 0 ? 'Upcoming assignments:\n' + upcoming.map(a => `- ${a.title} (${a.subject}) due ${a.dueDate} at ${a.dueTime}`).join('\n') : 'No upcoming assignments!';
-        } else if (input.includes('graded assignment')) {
-            const graded = assignments.filter(a => a.grade !== null).slice(0, 3);
-            response = graded.length > 0 ? 'Recently graded assignments:\n' + graded.map(a => `- ${a.title} (${a.subject}): ${a.grade}%`).join('\n') : 'No graded assignments yet.';
-        } else if (input.includes('today lecture') || input.includes('lectures today')) {
-            const today = new Date().toISOString().split('T')[0];
-            const todaysLectures = lectures.filter(l => l.date === today).sort((a, b) => a.time.localeCompare(b.time));
-            response = todaysLectures.length > 0 ? 'Today\'s lectures:\n' + todaysLectures.map(l => `- ${l.title} (${l.subject}) at ${l.time} in ${l.location || 'N/A'}`).join('\n') : 'No lectures scheduled for today.';
-        } else if (input.includes('all lecture')) {
-            const allLectures = lectures.slice(0, 5); // Limit to 5 for chat response
-            response = allLectures.length > 0 ? 'Some of your lectures:\n' + allLectures.map(l => `- ${l.title} (${l.subject}) on ${l.date} at ${l.time}`).join('\n') : 'No lectures added yet.';
-        } else if (input.includes('my gpa')) {
-            const gpa = calculateGPA(assignments).toFixed(2);
-            response = `Your current GPA is: ${gpa}.`;
-        } else if (input.includes('subject grade')) {
-            const subjectGradeInfo = subjects.map(s => {
-                const grades = assignments.filter(a => a.subject === s && a.grade !== null).map(a => a.grade);
-                if (!grades.length) return null;
-                const avg = (grades.reduce((sum, g) => sum + g, 0) / grades.length).toFixed(1);
-                return `${s}: ${avg}% (${getLetterGrade(parseFloat(avg))})`;
-            }).filter(Boolean);
-            response = subjectGradeInfo.length > 0 ? 'Average grades by subject:\n' + subjectGradeInfo.join('\n') : 'No graded assignments for any subject yet.';
-        } else if (input.includes('calendar') || input.includes('schedule')) {
-            response = 'Check the "Schedule" tab for your full calendar view of lectures and assignments!';
-        } else if (input.includes('start timer') || input.includes('pomodoro start')) {
-            if (!timerInterval) {
-                document.getElementById('startTimer')?.click(); // Simulate click
-                response = 'Pomodoro timer started!';
-            } else {
-                response = 'Pomodoro timer is already running. You can "pause timer" or "reset timer".';
+    todoListEl?.addEventListener('change', (e) => {
+        const target = e.target;
+        if (target.type === 'checkbox' && target.dataset.index) {
+            const index = parseInt(target.dataset.index);
+            if (!isNaN(index) && todos[index]) {
+                todos[index].completed = target.checked;
+                saveData();
+                updateTodoList();
+                showNotification(`Task marked as ${target.checked ? 'completed' : 'pending'}!`, 'info');
             }
-        } else if (input.includes('pause timer') || input.includes('pomodoro pause')) {
-            if (timerInterval) {
-                document.getElementById('startTimer')?.click(); // Simulate click
-                response = 'Pomodoro timer paused.';
-            } else {
-                response = 'Pomodoro timer is not running.';
-            }
-        } else if (input.includes('reset timer') || input.includes('pomodoro reset')) {
-            document.getElementById('resetTimer')?.click(); // Simulate click
-            response = 'Pomodoro timer reset.';
-        } else if (input.includes('my todo')) {
-            const pendingTodos = todos.filter(t => !t.completed).slice(0, 5);
-            response = pendingTodos.length > 0 ? 'Your pending tasks:\n' + pendingTodos.map(t => `- ${t.task}`).join('\n') : 'Great! No pending tasks at the moment.';
-        } else {
-            response = 'I\'m not sure how to help with that. Please try asking about assignments, lectures, grades, schedule, timer, or to-do list.';
-        }
-        setTimeout(() => addChatMessage(response, 'bot'), 500);
-    };
-
-    document.getElementById('sendChatBtn')?.addEventListener('click', () => {
-        const chatInput = document.getElementById('chatInput');
-        if (chatInput?.value.trim()) {
-            processChatInput(chatInput.value);
-            chatInput.value = '';
         }
     });
 
-    document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+    todoListEl?.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.dataset.action === 'delete-todo' && target.dataset.index) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                const index = parseInt(target.dataset.index);
+                if (!isNaN(index) && todos[index]) {
+                    todos.splice(index, 1);
+                    saveData();
+                    updateTodoList();
+                    showNotification('Task deleted!', 'info');
+                }
+            }
+        }
+    });
+
+    // --- AI Assistant Logic (Placeholder) ---
+    toggleChatBtn?.addEventListener('click', () => {
+        chatAssistantSection.classList.toggle('minimized');
+        toggleChatBtn.querySelector('i').classList.toggle('fa-minus');
+        toggleChatBtn.querySelector('i').classList.toggle('fa-plus');
+    });
+
+    const appendMessage = (sender, message) => {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('chat-message', sender);
+        msgDiv.innerHTML = message;
+        chatMessagesEl.appendChild(msgDiv);
+        chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight; // Auto-scroll to latest
+    };
+
+    sendChatBtn?.addEventListener('click', () => {
+        const userMessage = chatInputEl.value.trim();
+        if (userMessage) {
+            appendMessage('user', userMessage);
+            chatInputEl.value = '';
+            // Simulate AI response
+            setTimeout(() => {
+                const aiResponse = generateAIResponse(userMessage);
+                appendMessage('ai', aiResponse);
+            }, 500);
+        }
+    });
+
+    chatInputEl?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            const chatInput = document.getElementById('chatInput');
-            if (chatInput?.value.trim()) {
-                processChatInput(chatInput.value);
-                chatInput.value = '';
-            }
+            sendChatBtn.click();
         }
     });
 
-    // --- Recent Activity ---
-    const updateRecentActivity = () => {
-        const activityList = document.getElementById('recentActivityList');
-        if (!activityList) return;
-        activityList.innerHTML = recentActivity.length > 0 ? recentActivity.map(activity => {
-            const date = new Date(activity.date).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });
-            return `<p><strong>${date}:</strong> ${activity.message}</p>`;
-        }).join('') : '<p>No recent activity.</p>';
+    const generateAIResponse = (message) => {
+        message = message.toLowerCase();
+        if (message.includes('assignments pending')) {
+            const pendingCount = assignments.filter(a => a.status === 'pending').length;
+            return `You have ${pendingCount} assignments pending.`;
+        } else if (message.includes('upcoming deadlines')) {
+            const now = new Date();
+            const upcoming = assignments
+                .filter(a => a.status === 'pending' && new Date(a.dueDate + 'T' + a.dueTime) > now)
+                .sort((a, b) => new Date(a.dueDate + 'T' + a.dueTime) - new Date(b.dueDate + 'T' + b.dueTime))
+                .slice(0, 3);
+            if (upcoming.length > 0) {
+                return "Here are your top 3 upcoming deadlines: " +
+                       upcoming.map(a => `${a.title} (${a.subject}) due on ${a.dueDate}`).join(', ') + ".";
+            } else {
+                return "You have no upcoming deadlines! Great job!";
+            }
+        } else if (message.includes('total assignments')) {
+            return `You have a total of ${assignments.length} assignments recorded.`;
+        } else if (message.includes('hello') || message.includes('hi')) {
+            return "Hello there! How can I assist you today?";
+        } else if (message.includes('grades')) {
+            const gradedCount = assignments.filter(a => a.grade !== null).length;
+            if (gradedCount > 0) {
+                return "I can show you your grades on the Grades tab. Your current average grade is likely displayed there.";
+            } else {
+                return "You haven't recorded any grades yet. Once you do, I can help summarize them.";
+            }
+        } else if (message.includes('help')) {
+            return "I can help you with questions about your assignments, lectures, deadlines, and grades. Try asking about 'upcoming deadlines' or 'assignments pending'.";
+        } else if (message.includes('today schedule')) {
+            const today = new Date().toISOString().slice(0, 10);
+            const todayLectures = lectures.filter(l => l.date === today);
+            if (todayLectures.length > 0) {
+                return `Today, ${todayLectures.map(l => `${l.title} at ${l.time}`).join(', ')}.`;
+            } else {
+                return "You have no lectures scheduled for today.";
+            }
+        }
+        return "I'm not sure how to answer that. Can you rephrase or ask about assignments, lectures, or schedules?";
     };
 
-    // --- Initializations on Load ---
-    const initializeApp = () => {
-        // Load initial data for profile
-        loadProfileData();
+    // --- Initial Load and Data Render ---
+    const init = () => {
+        // Set current date on dashboard
+        if (currentDateEl) {
+            currentDateEl.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
 
-        // Initialize display for all sections
-        updateSubjectOptions();
-        updateSemesterOptions();
-        updateAssignmentsList();
-        updateLecturesList();
+        loadProfileData(); // Load profile data on init
         updateDashboardStats();
         updateUpcomingDeadlines();
         updateTodaySchedule();
-        updateGrades();
-        updateTodoList();
-        updateTimerDisplay(); // Set initial display for Pomodoro
-        updateRecentActivity(); // Display recent activity
+        updateAssignmentsList(); // Initial render of assignments
+        updateLecturesList();   // Initial render of lectures
+        updateTodoList();       // Initial render of todo list
+        updateGradesDisplay();  // Initial render of grades
 
-        // Render calendar (important to do this after all data and elements are ready)
-        updateCalendar();
+        populateAssignmentModalSelects(); // Populate subject/semester dropdowns in modals
+        populateLectureModalSelects();
+        populateSemesterFilters(); // Populate all semester filter dropdowns (assignments, lectures, schedule, grades)
 
-        // Activate the first tab by default if none is active
-        const firstNavLink = document.querySelector('.nav-link');
-        const firstTabContent = document.querySelector('.tab-content');
-        if (firstNavLink && firstTabContent && !document.querySelector('.nav-link.active')) {
-            firstNavLink.classList.add('active');
-            firstTabContent.classList.add('active');
+        // Initialize calendar if the tab is active or if it's the default active tab
+        if (document.getElementById('schedule').classList.contains('active')) {
+            renderCalendar();
         }
     };
 
-    // Run all initializations
-    initializeApp();
+    init();
 });
