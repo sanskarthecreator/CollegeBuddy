@@ -116,26 +116,27 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('profilePictureData', profilePictureData);
     };
 
-    const showNotification = (message, type = 'info', duration = 300) => {
-        const container = document.getElementById('notificationContainer');
-        if (!container) return;
+  const showNotification = (message, type = 'info', duration = 2000) => {
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
 
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
 
-        container.appendChild(notification);
+    container.appendChild(notification);
 
-        // Trigger reflow to enable transition
-        notification.offsetHeight;
+    // Trigger reflow
+    notification.offsetHeight;
 
-        notification.classList.add('show');
+    notification.classList.add('show');
 
-        setTimeout(() => {
-            notification.classList.remove('show');
-            notification.addEventListener('transitionend', () => notification.remove());
-        }, duration);
-    };
+    setTimeout(() => {
+        notification.classList.remove('show');
+        // Remove notification after the transition
+        setTimeout(() => notification.remove(), 600); // Adjust if your transition is different
+    }, duration);
+};
 
     // --- UI Update Functions ---
 
