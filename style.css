@@ -452,7 +452,7 @@ body.dark-mode::before {
 #timerDisplay {
     font-size: 2.4rem;
     color: #6a5acd; /* Medium purple for timer display */
-    transition: color 0.2s ease;
+    transition: color 0.4s ease;
 }
 
 .dark-mode #timerDisplay {
