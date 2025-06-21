@@ -115,10 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('profileData', JSON.stringify(profileData));
         localStorage.setItem('profilePictureData', profilePictureData);
     };
-
-  const showNotification = (message, type = 'info', duration = 2000) => {
-    const container = document.getElementById('notificationContainer');
-    if (!container) return;
+setTimeout(function() {
+  document.querySelector('.notification').style.display = 'none';
+}, 3000); // 3 seconds
 
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
