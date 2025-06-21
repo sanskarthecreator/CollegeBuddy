@@ -9,7 +9,6 @@
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation Header -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
@@ -31,7 +30,6 @@
     </nav>
 
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h3>Quick Actions</h3>
@@ -60,9 +58,7 @@
             </div>
         </aside>
 
-        <!-- Main Content Area -->
         <main class="main-content">
-            <!-- Dashboard Tab -->
             <section id="dashboard" class="tab-content active">
                 <div class="page-header">
                     <h1>Dashboard</h1>
@@ -125,7 +121,6 @@
                 </div>
             </section>
 
-            <!-- Assignments Tab -->
             <section id="assignments" class="tab-content">
                 <div class="page-header">
                     <h1>Assignments</h1>
@@ -145,7 +140,6 @@
                 <div id="assignmentsList" class="assignments-grid"></div>
             </section>
 
-            <!-- Lectures Tab -->
             <section id="lectures" class="tab-content">
                 <div class="page-header">
                     <h1>Lectures</h1>
@@ -159,7 +153,6 @@
                 <div id="lecturesList" class="lectures-grid"></div>
             </section>
 
-            <!-- Schedule Tab -->
             <section id="schedule" class="tab-content">
                 <div class="page-header">
                     <h1>Schedule</h1>
@@ -172,7 +165,6 @@
                 </div>
             </section>
 
-            <!-- Grades Tab -->
             <section id="grades" class="tab-content">
                 <div class="page-header">
                     <h1>Grades</h1>
@@ -194,72 +186,70 @@
                     <div id="subjectGrades" class="subjects-grades"></div>
                 </div>
             </section>
-<!--profile tab -->
-      <section id="profile" class="tab-content">
-    <div class="page-header">
-        <h1>Profile</h1>
-    </div>
-    <div class="profile-container">
-        <div class="profile-card">
-            <div class="profile-pic-area">
-                <img id="profilePicture" src="https://via.placeholder.com/150" alt="Profile Picture">
-                <input type="file" id="profilePicUpload" accept="image/*" style="display: none;">
-                <label for="profilePicUpload" class="upload-button">Upload Photo</label>
+<section id="profile" class="tab-content">
+        <div class="page-header">
+            <h1>Profile</h1>
+        </div>
+        <div class="profile-container">
+            <div class="profile-card">
+                <div class="profile-pic-area">
+                    <img id="profilePicture" src="https://via.placeholder.com/150" alt="Profile Picture">
+                    <input type="file" id="profilePicUpload" accept="image/*" style="display: none;">
+                    <label for="profilePicUpload" class="upload-button">Upload Photo</label>
+                </div>
+                <div class="profile-info-display">
+                    <h2 id="studentName">Student Name</h2>
+                    <p id="studentIdDisplay">Student ID: N/A</p>
+                    <p id="studentMajor">Major: N/A</p>
+                    <p id="studentYear">Year: N/A</p>
+                </div>
             </div>
-            <div class="profile-info-display">
-                <h2 id="studentName">Student Name</h2>
-                <p id="studentIdDisplay">Student ID: N/A</p>
-                <p id="studentMajor">Major: N/A</p>
-                <p id="studentYear">Year: N/A</p>
+            <div class="profile-settings">
+                <form id="profileForm">
+                    <div class="form-section">
+                        <h3>Personal Information</h3>
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="studentIdInput">Student ID</label>
+                            <input type="text" id="studentIdInput" required>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <h3>Academic Information</h3>
+                        <div class="form-group">
+                            <label for="major">Major</label>
+                            <input type="text" id="major" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Academic Year</label>
+                            <select id="year" required>
+                                <option value="">Select Year</option>
+                                <option value="first year">First year</option>
+                                <option value="second year">Second year</option>
+                                <option value="third year">Third year</option>
+                                <option value="fourth year">Fourth year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
             </div>
         </div>
-        <div class="profile-settings">
-            <form id="profileForm">
-                <div class="form-section">
-                    <h3>Personal Information</h3>
-                    <div class="form-group">
-                        <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <input type="tel" id="phone">
-                    </div>
-                    <div class="form-group">
-                        <label for="studentIdInput">Student ID</label>
-                        <input type="text" id="studentIdInput" required>
-                    </div>
-                </div>
-                <div class="form-section">
-                    <h3>Academic Information</h3>
-                    <div class="form-group">
-                        <label for="major">Major</label>
-                        <input type="text" id="major" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="year">Academic Year</label>
-                        <select id="year" required>
-                            <option value="">Select Year</option>
-                            <option value="first year">First year</option>
-                            <option value="second year">Second year</option>
-                            <option value="third year">Third year</option>
-                            <option value="fourth year">Fourth year</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </form>
-        </div>
-    </div>
 </section>
         </main>
     </div>
 
-    <!-- Modals -->
     <div id="assignmentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
