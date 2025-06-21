@@ -8,9 +8,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let profileData = JSON.parse(localStorage.getItem('profileData')) || {};
     let profilePictureData = localStorage.getItem('profilePictureData') || 'https://via.placeholder.com/150';
 
+    // Ensure IDs are unique and increment correctly after load
     let nextAssignmentId = assignments.length > 0 ? Math.max(...assignments.map(a => a.id)) + 1 : 1;
     let nextLectureId = lectures.length > 0 ? Math.max(...lectures.map(l => l.id)) + 1 : 1;
     let nextSemesterId = semesters.length > 0 ? Math.max(...semesters.map(s => s.id)) + 1 : 1;
+    
+    // Fallback if data is empty or IDs are not numbers
+    if (isNaN(nextAssignmentId)) nextAssignmentId = 1;
+    if (isNaN(nextLectureId)) nextLectureId = 1;
+    if (isNaN(nextSemesterId)) nextSemesterId = 1;
 
     // --- DOM Element References ---
     const navLinks = document.querySelectorAll('.nav-link');
@@ -96,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleChatBtn = document.getElementById('toggleChat');
     const chatAssistantSection = document.querySelector('.chat-assistant');
 
-    // FullCalendar
+    // FullCalendar instance
     let calendar;
 
     // --- Helper Functions ---
@@ -138,20 +144,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const enableDarkMode = () => {
         document.body.classList.add('dark-mode');
         localStorage.setItem('darkMode', 'enabled');
-        darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        if (darkModeToggle) darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
     };
 
     const disableDarkMode = () => {
         document.body.classList.remove('dark-mode');
         localStorage.setItem('darkMode', 'disabled');
-        darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        if (darkModeToggle) darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
     };
 
     if (localStorage.getItem('darkMode') === 'enabled') {
         enableDarkMode();
     }
 
-    darkModeToggle.addEventListener('click', () => {
+    darkModeToggle?.addEventListener('click', () => {
         if (document.body.classList.contains('dark-mode')) {
             disableDarkMode();
         } else {
@@ -163,10 +169,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
 
-    navToggle.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        navToggle.querySelector('i').classList.toggle('fa-bars');
-        navToggle.querySelector('i').classList.toggle('fa-times');
+    navToggle?.addEventListener('click', () => {
+        navMenu?.classList.toggle('active');
+        navToggle.querySelector('i')?.classList.toggle('fa-bars');
+        navToggle.querySelector('i')?.classList.toggle('fa-times');
     });
 
     // Tab Navigation
@@ -179,21 +185,21 @@ document.addEventListener('DOMContentLoaded', () => {
             tabContents.forEach(content => content.classList.remove('active'));
 
             link.classList.add('active');
-            document.getElementById(targetTab).classList.add('active');
+            document.getElementById(targetTab)?.classList.add('active');
 
             // Specific updates for tabs
             if (targetTab === 'assignments') {
                 updateAssignmentsList();
-                populateSemesterFilters();
+                populateSemesterFilters(); // Ensure filters are populated
             } else if (targetTab === 'lectures') {
                 updateLecturesList();
-                populateLectureSemesterFilter();
+                populateLectureSemesterFilter(); // Ensure filters are populated
             } else if (targetTab === 'schedule') {
+                populateScheduleSemesterFilter(); // Ensure filter is populated before rendering
                 renderCalendar();
-                populateScheduleSemesterFilter();
             } else if (targetTab === 'grades') {
+                populateGradesSemesterFilter(); // Ensure filter is populated before rendering
                 updateGradesDisplay();
-                populateGradesSemesterFilter();
             } else if (targetTab === 'dashboard') {
                 updateDashboardStats();
                 updateTodaySchedule();
@@ -210,16 +216,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const modalId = button.dataset.modal;
             const modal = document.getElementById(modalId);
             if (modal) {
-                modal.style.display = 'block';
+                // Populate selects specific to the modal before showing
                 if (modalId === 'assignmentModal') {
                     populateAssignmentModalSelects();
                 } else if (modalId === 'lectureModal') {
                     populateLectureModalSelects();
                 } else if (modalId === 'subjectModal') {
-                    updateSubjectList();
+                    updateSubjectList(); // Refresh subject list inside modal
                 } else if (modalId === 'semesterModal') {
-                    updateSemesterList();
+                    updateSemesterList(); // Refresh semester list inside modal
                 }
+                modal.style.display = 'block';
             }
         });
     });
@@ -266,6 +273,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateSubjectList();
             populateAssignmentModalSelects(); // Update assignment/lecture subject dropdowns
             populateLectureModalSelects();
+            updateAssignmentsList(); // Refresh assignments list in case a subject was newly added and could now be assigned
+            updateLecturesList(); // Refresh lectures list similarly
             showNotification('Subject added successfully!', 'success');
             newSubjectInput.value = '';
         } else if (newSubject && subjects.includes(newSubject)) {
@@ -290,6 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateLecturesList();
                 updateDashboardStats();
                 updateGradesDisplay();
+                renderCalendar(); // Calendar might have events for this subject
                 showNotification('Subject and associated data deleted.', 'info');
             }
         }
@@ -317,12 +327,12 @@ document.addEventListener('DOMContentLoaded', () => {
             semesters.push({ id: nextSemesterId++, name: semesterName, startDate: semesterStart, endDate: semesterEnd });
             saveData();
             updateSemesterList();
-            populateSemesterFilters();
-            populateLectureSemesterFilter();
-            populateScheduleSemesterFilter();
-            populateGradesSemesterFilter();
-            populateAssignmentModalSelects();
+            populateSemesterFilters(); // Update all semester filter dropdowns
+            populateAssignmentModalSelects(); // Update assignment/lecture semester dropdowns
             populateLectureModalSelects();
+            updateAssignmentsList(); // Refresh assignments/lectures list as new semester filter might be available
+            updateLecturesList();
+            renderCalendar(); // Calendar might need refresh
             showNotification('Semester added successfully!', 'success');
             semesterForm.reset();
         } else {
@@ -342,21 +352,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 lectures = lectures.filter(l => l.semesterId !== semesterIdToDelete);
                 saveData();
                 updateSemesterList();
-                populateSemesterFilters();
-                populateLectureSemesterFilter();
-                populateScheduleSemesterFilter();
-                populateGradesSemesterFilter();
+                populateSemesterFilters(); // Update all semester filter dropdowns
                 populateAssignmentModalSelects();
                 populateLectureModalSelects();
                 updateAssignmentsList();
                 updateLecturesList();
                 updateDashboardStats();
                 updateGradesDisplay();
+                renderCalendar(); // Calendar might have events for this semester
                 showNotification('Semester and associated data deleted.', 'info');
             }
         }
     });
-
 
     // Assignments
     const populateAssignmentModalSelects = () => {
@@ -428,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateAssignmentsList();
         updateDashboardStats();
         updateUpcomingDeadlines();
+        renderCalendar(); // Update calendar with new assignment
         showNotification('Assignment added successfully!', 'success');
         document.getElementById('assignmentModal').style.display = 'none';
         assignmentForm.reset();
@@ -467,6 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateDashboardStats();
                 updateUpcomingDeadlines();
                 updateGradesDisplay();
+                renderCalendar(); // Update calendar
                 showNotification(`Assignment marked as ${assignment.status}!`, 'info');
             }
         } else if (target.dataset.action === 'assign-grade') {
@@ -490,6 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateDashboardStats();
                 updateUpcomingDeadlines();
                 updateGradesDisplay();
+                renderCalendar(); // Update calendar
                 showNotification('Assignment deleted!', 'info');
             }
         }
@@ -551,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lectures.push(newLecture);
         saveData();
         updateLecturesList();
-        renderCalendar();
+        renderCalendar(); // Update calendar with new lecture
         updateTodaySchedule();
         showNotification('Lecture added successfully!', 'success');
         document.getElementById('lectureModal').style.display = 'none';
@@ -578,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 lectures = lectures.filter(l => l.id !== id);
                 saveData();
                 updateLecturesList();
-                renderCalendar();
+                renderCalendar(); // Update calendar
                 updateTodaySchedule();
                 showNotification('Lecture deleted!', 'info');
             }
@@ -588,7 +598,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Schedule (FullCalendar)
     const renderCalendar = () => {
         const calendarEl = document.getElementById('fullCalendar');
-        if (!calendarEl) return;
+        if (!calendarEl) {
+             console.warn("FullCalendar element not found.");
+             return; // Exit if element is not in DOM
+        }
 
         const currentFilterSemesterId = parseInt(scheduleSemesterFilter?.value) || 'all';
 
@@ -741,18 +754,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Profile Management
     const loadProfileData = () => {
-        fullNameInput.value = profileData.fullName || '';
-        emailInput.value = profileData.email || '';
-        phoneInput.value = profileData.phone || '';
-        studentIdInput.value = profileData.studentId || '';
-        majorInput.value = profileData.major || '';
-        yearSelect.value = profileData.year || '';
+        if (fullNameInput) fullNameInput.value = profileData.fullName || '';
+        if (emailInput) emailInput.value = profileData.email || '';
+        if (phoneInput) phoneInput.value = profileData.phone || '';
+        if (studentIdInput) studentIdInput.value = profileData.studentId || '';
+        if (majorInput) majorInput.value = profileData.major || '';
+        if (yearSelect) yearSelect.value = profileData.year || '';
 
-        studentNameEl.textContent = profileData.fullName || 'Student Name';
-        studentIdDisplayEl.textContent = `Student ID: ${profileData.studentId || 'N/A'}`;
-        studentMajorEl.textContent = `Major: ${profileData.major || 'N/A'}`;
-        studentYearEl.textContent = `Year: ${profileData.year || 'N/A'}`;
-        profilePictureEl.src = profilePictureData;
+        if (studentNameEl) studentNameEl.textContent = profileData.fullName || 'Student Name';
+        if (studentIdDisplayEl) studentIdDisplayEl.textContent = `Student ID: ${profileData.studentId || 'N/A'}`;
+        if (studentMajorEl) studentMajorEl.textContent = `Major: ${profileData.major || 'N/A'}`;
+        if (studentYearEl) studentYearEl.textContent = `Year: ${profileData.year || 'N/A'}`;
+        if (profilePictureEl) profilePictureEl.src = profilePictureData;
     };
 
     profileForm?.addEventListener('submit', (e) => {
@@ -776,7 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 profilePictureData = e.target.result;
-                profilePictureEl.src = profilePictureData;
+                if (profilePictureEl) profilePictureEl.src = profilePictureData;
                 saveData();
                 showNotification('Profile picture updated!', 'success');
             };
@@ -814,10 +827,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             upcomingDeadlinesEl.innerHTML = upcoming.map(a => {
                 const dueDateObj = new Date(a.dueDate + 'T' + a.dueTime);
+                const timeString = dueDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 return `
                     <div class="deadline-item">
                         <span>${a.title} (${a.subject})</span>
-                        <span>${dueDateObj.toLocaleDateString()} ${dueDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>${dueDateObj.toLocaleDateString()} at ${timeString}</span>
                     </div>
                 `;
             }).join('');
@@ -826,7 +840,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateTodaySchedule = () => {
         if (!todayScheduleEl) return;
-        const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        const today = new Date().toISOString().slice(0, 10); //YYYY-MM-DD
 
         const todayLectures = lectures
             .filter(l => l.date === today)
@@ -848,16 +862,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateTimerDisplay = () => {
         const minutes = Math.floor(timeRemaining / 60);
         const seconds = timeRemaining % 60;
-        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        if (timerDisplay) timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
     const startTimer = () => {
         if (!isPaused) return;
 
         isPaused = false;
-        startTimerBtn.textContent = 'Pause';
-        startTimerBtn.classList.remove('btn-primary');
-        startTimerBtn.classList.add('btn-warning');
+        if (startTimerBtn) {
+            startTimerBtn.textContent = 'Pause';
+            startTimerBtn.classList.remove('btn-primary');
+            startTimerBtn.classList.add('btn-warning');
+        }
 
         pomodoroTimer = setInterval(() => {
             timeRemaining--;
@@ -870,17 +886,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification('Work session completed! Time for a break.', 'success', 4000);
                     sessionType = (workSessionsCompleted % 4 === 0) ? 'long-break' : 'break';
                     timeRemaining = (sessionType === 'long-break') ? LONG_BREAK_TIME : BREAK_TIME;
-                    timerStatus.textContent = sessionType === 'long-break' ? 'Long Break' : 'Break Session';
+                    if (timerStatus) timerStatus.textContent = sessionType === 'long-break' ? 'Long Break' : 'Break Session';
                 } else {
                     showNotification('Break completed! Time to get back to work.', 'info', 4000);
                     sessionType = 'work';
                     timeRemaining = WORK_TIME;
-                    timerStatus.textContent = 'Work Session';
+                    if (timerStatus) timerStatus.textContent = 'Work Session';
                 }
                 isPaused = true;
-                startTimerBtn.textContent = 'Start';
-                startTimerBtn.classList.remove('btn-warning');
-                startTimerBtn.classList.add('btn-primary');
+                if (startTimerBtn) {
+                    startTimerBtn.textContent = 'Start';
+                    startTimerBtn.classList.remove('btn-warning');
+                    startTimerBtn.classList.add('btn-primary');
+                }
                 updateTimerDisplay(); // Update display to new session time
             }
         }, 1000);
@@ -892,10 +910,12 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionType = 'work';
         timeRemaining = WORK_TIME;
         workSessionsCompleted = 0;
-        timerStatus.textContent = 'Work Session';
-        startTimerBtn.textContent = 'Start';
-        startTimerBtn.classList.remove('btn-warning');
-        startTimerBtn.classList.add('btn-primary');
+        if (timerStatus) timerStatus.textContent = 'Work Session';
+        if (startTimerBtn) {
+            startTimerBtn.textContent = 'Start';
+            startTimerBtn.classList.remove('btn-warning');
+            startTimerBtn.classList.add('btn-primary');
+        }
         updateTimerDisplay();
     };
 
@@ -905,9 +925,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             clearInterval(pomodoroTimer);
             isPaused = true;
-            startTimerBtn.textContent = 'Resume';
-            startTimerBtn.classList.remove('btn-warning');
-            startTimerBtn.classList.add('btn-primary');
+            if (startTimerBtn) {
+                startTimerBtn.textContent = 'Resume';
+                startTimerBtn.classList.remove('btn-warning');
+                startTimerBtn.classList.add('btn-primary');
+            }
         }
     });
 
@@ -972,12 +994,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- AI Assistant Logic (Placeholder) ---
     toggleChatBtn?.addEventListener('click', () => {
-        chatAssistantSection.classList.toggle('minimized');
-        toggleChatBtn.querySelector('i').classList.toggle('fa-minus');
-        toggleChatBtn.querySelector('i').classList.toggle('fa-plus');
+        chatAssistantSection?.classList.toggle('minimized');
+        toggleChatBtn.querySelector('i')?.classList.toggle('fa-minus');
+        toggleChatBtn.querySelector('i')?.classList.toggle('fa-plus');
     });
 
     const appendMessage = (sender, message) => {
+        if (!chatMessagesEl) return;
         const msgDiv = document.createElement('div');
         msgDiv.classList.add('chat-message', sender);
         msgDiv.innerHTML = message;
@@ -1032,8 +1055,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 return "You haven't recorded any grades yet. Once you do, I can help summarize them.";
             }
-        } else if (message.includes('help')) {
-            return "I can help you with questions about your assignments, lectures, deadlines, and grades. Try asking about 'upcoming deadlines' or 'assignments pending'.";
         } else if (message.includes('today schedule')) {
             const today = new Date().toISOString().slice(0, 10);
             const todayLectures = lectures.filter(l => l.date === today);
@@ -1053,23 +1074,24 @@ document.addEventListener('DOMContentLoaded', () => {
             currentDateEl.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        loadProfileData(); // Load profile data on init
+        // Initialize and populate all dropdowns first
+        // This is crucial because other update functions (like updateAssignmentsList)
+        // depend on these filters being populated with current subject/semester data.
+        populateAssignmentModalSelects();
+        populateLectureModalSelects();
+        populateSemesterFilters(); // This populates all filter dropdowns (assignment, lecture, schedule, grades)
+        updateSubjectList(); // Needed for manage subjects modal
+
+        // Then load and update all UI sections
+        loadProfileData();
         updateDashboardStats();
         updateUpcomingDeadlines();
         updateTodaySchedule();
-        updateAssignmentsList(); // Initial render of assignments
-        updateLecturesList();   // Initial render of lectures
-        updateTodoList();       // Initial render of todo list
-        updateGradesDisplay();  // Initial render of grades
-
-        populateAssignmentModalSelects(); // Populate subject/semester dropdowns in modals
-        populateLectureModalSelects();
-        populateSemesterFilters(); // Populate all semester filter dropdowns (assignments, lectures, schedule, grades)
-
-        // Initialize calendar if the tab is active or if it's the default active tab
-        if (document.getElementById('schedule').classList.contains('active')) {
-            renderCalendar();
-        }
+        updateAssignmentsList();
+        updateLecturesList();
+        updateTodoList();
+        updateGradesDisplay();
+        renderCalendar(); // Render calendar after all data and filters are loaded
     };
 
     init();
