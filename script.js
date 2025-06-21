@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('profilePictureData', profilePictureData);
     };
 
-    const showNotification = (message, type = 'info', duration = 3s) => {
+    const showNotification = (message, type = 'info', duration = 300) => {
         const container = document.getElementById('notificationContainer');
         if (!container) return;
 
